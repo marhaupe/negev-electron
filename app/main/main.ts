@@ -5,10 +5,15 @@ const isDev = require('electron-is-dev')
 const { resolve } = require('app-root-path')
 
 app.on('ready', async () => {
+  const webPreferences = isDev? {
+      webSecurity: false 
+  } : {}
+
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    show: false
+    show: false,
+    webPreferences,
   })
 
   mainWindow.once('ready-to-show', () => {

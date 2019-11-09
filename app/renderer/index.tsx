@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+import { Editor } from './Editor'
 
-import Router from './router'
 
 const render = (Component) => {
   ReactDOM.render(
@@ -10,4 +10,4 @@ const render = (Component) => {
   )
 }
 
-render(Router)
+render(Editor)
