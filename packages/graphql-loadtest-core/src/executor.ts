@@ -3,10 +3,9 @@ import fetch from 'node-fetch';
 import { FetchParams, Config, Stats } from './types';
 
 export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
-  const executionBeginDate = Date.now();
   // This is a store all requests that have been kicked off.
   // This allows us to later await all pending requests.
-  const kickedOffRequests: Promise<any>[] = [];
+  const kickedOffRequests: Promise<LoadTestResponse>[] = [];
 
   for (const phase of phases) {
     const { arrivalRate, duration, pause } = phase;
@@ -33,12 +32,10 @@ export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
       await sleep(pause);
     }
   }
-  await Promise.all(kickedOffRequests);
-  const executionEndDate = Date.now();
-  const completeDuration = executionEndDate - executionBeginDate;
+  const responses = await Promise.all(kickedOffRequests);
+  let completeDuration = 0;
+  responses.forEach(response => (completeDuration += response.duration));
 
-  // TODO: This is wrong because it accounts the time slept during each phase, e.g when `remainingTime`
-  // is greater than zero after kicking of the requests.
   const averageDurationPerRequest = Math.round(
     completeDuration / kickedOffRequests.length
   );
@@ -51,11 +48,17 @@ export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
   };
 }
 
+type LoadTestResponse = {
+  json: any;
+  duration: number;
+};
 export async function fetchResponse({
   url,
   headers,
   body,
-}: FetchParams): Promise<any> {
+}: FetchParams): Promise<LoadTestResponse> {
+  const startDate = Date.now();
+
   const response = await fetch(url, {
     method: 'post',
     headers: {
@@ -64,5 +67,13 @@ export async function fetchResponse({
     },
     body: JSON.stringify(body),
   });
-  return await response.json();
+
+  const endDate = Date.now();
+  const duration = endDate - startDate;
+  const json = await response.json();
+
+  return {
+    json,
+    duration,
+  };
 }
