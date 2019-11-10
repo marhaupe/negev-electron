@@ -1,47 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
+import { usePersistedState } from './__utils__';
 import 'graphiql/graphiql.css';
-
-function usePersistedState<S>(key: string, initialState: S | (() => S)): [S, (value: S) => void] {
-  const [state, setState] = useState(() => {
-    return getPersistedState(initialState);
-  });
-
-  function getPersistedState(initialState: S | (() => S)) {
-    const persistedState = window.localStorage.getItem(key);
-    if (!persistedState) {
-      if (typeof initialState !== 'function') {
-        return initialState;
-      }
-      return (initialState as () => S)();
-    }
-    return JSON.parse(persistedState);
-  }
-
-  function setPersistedState(value: S) {
-    window.localStorage.setItem(key, JSON.stringify(value));
-    setState(value);
-  }
-
-  return [state, setPersistedState];
-}
-
-function calculateSum(args: number[]) {
-  return args.reduce((accumulator, current) => accumulator + current);
-}
-
-function calculateAverage(args: number[]) {
-  return Math.round(calculateSum(args) / args.length);
-}
+const { ipcRenderer } = window.require('electron');
 
 export function Editor() {
   const [endpoint, setEndpoint] = usePersistedState('endpoint', '');
-  const [counts, setCount] = usePersistedState('counts', 100);
-  const [cycles, setCycles] = usePersistedState('cycles', 5);
+  const [duration, setDuration] = usePersistedState<number | undefined>('duration', undefined);
+  const [arrivalRate, setArrivalRate] = usePersistedState<number | undefined>('arrivalRate', undefined);
 
-  async function fetcher(graphQLParams: any) {
-    console.log('params', graphQLParams);
+  async function defaultFetcher(graphQLParams: any) {
     const response = await fetch(endpoint, {
       method: 'post',
       headers: {
@@ -52,47 +21,31 @@ export function Editor() {
     return await response.json();
   }
 
-  async function fetcherBenchmarker(graphQLParams: any) {
-    if (graphQLParams.operationName === 'IntrospectionQuery') {
-      return fetcher(graphQLParams);
-    }
-
-    let mostRecentResponseBody: any;
-    const elapsedTimes = [];
-    for (let cycle = 0; cycle < cycles; cycle++) {
-      const cycleElapsedTimes = [];
-      for (let count = 0; count < counts; count++) {
-        const timeStart = Date.now();
-
-        // ony assign mostRecentReponseBody at the end of the loop to be more efficient
-        if (cycle === cycles - 1 && count === counts - 1) {
-          mostRecentResponseBody = await fetcher(graphQLParams);
-        } else {
-          await fetcher(graphQLParams);
-        }
-
-        const timeEnd = Date.now();
-        const timeElapsed = timeEnd - timeStart;
-        cycleElapsedTimes.push(timeElapsed);
+  async function loadtestFetcher(graphQLParams: any) {
+    const config = {
+      phases: [{ arrivalRate, duration }],
+      fetchParams: {
+        body: graphQLParams,
+        url: endpoint
       }
-      elapsedTimes.push(cycleElapsedTimes);
-    }
+    };
+    return new Promise((resolve, _reject) => {
+      ipcRenderer.send('loadtestFetcher-request', config);
+      ipcRenderer.on('loadtestFetcher-response', (_event: any, arg: any) => {
+        resolve(arg);
+      });
+    });
+  }
 
-    let totalDuration = 0;
-    for (let i = 0; i < elapsedTimes.length; i++) {
-      const cycleElapsedTimes = elapsedTimes[i];
-      const cycleDuration = calculateSum(cycleElapsedTimes);
-      const cycleAverage = calculateAverage(cycleElapsedTimes);
-      console.log(`total duration for cycle ${i + 1}: ${cycleDuration}ms`);
-      console.log(`average duration for cycle ${i + 1}: ${cycleAverage}ms`);
-      totalDuration += cycleDuration;
+  async function fetcher(graphQLParams: any) {
+    if (graphQLParams.operationName === 'IntrospectionQuery') {
+      return defaultFetcher(graphQLParams);
     }
-    console.log(`benchmarking took ${totalDuration}ms for ${counts} requests over ${cycles} cycles`);
-    return mostRecentResponseBody;
+    return loadtestFetcher(graphQLParams);
   }
 
   return (
-    <GraphiQL fetcher={fetcherBenchmarker}>
+    <GraphiQL fetcher={fetcher}>
       <GraphiQL.Logo>Custom Logo</GraphiQL.Logo>
       <GraphiQL.Toolbar>
         <GraphiQL.Button
@@ -105,9 +58,19 @@ export function Editor() {
           <GraphiQL.MenuItem label="Save" title="Save" onSelect={() => {}} />
         </GraphiQL.Menu>
 
-        <input value={endpoint} onChange={event => setEndpoint(event.target.value)} />
-        <input value={counts} type={'number'} onChange={event => setCount(parseInt(event.target.value))} />
-        <input value={cycles} type={'number'} onChange={event => setCycles(parseInt(event.target.value))} />
+        <input value={endpoint} placeholder={'Endpoint'} onChange={event => setEndpoint(event.target.value)} />
+        <input
+          value={duration}
+          placeholder={'Duration (in seconds)'}
+          type={'number'}
+          onChange={event => setDuration(parseInt(event.target.value))}
+        />
+        <input
+          value={arrivalRate}
+          placeholder={'Arrival Rate (per second)'}
+          type={'number'}
+          onChange={event => setArrivalRate(parseInt(event.target.value))}
+        />
       </GraphiQL.Toolbar>
       <GraphiQL.Footer></GraphiQL.Footer>
     </GraphiQL>
