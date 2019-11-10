@@ -1,4 +1,4 @@
 {
   "private": true,
-  "workspaces": ["packages/graphql-loadtest-cli", "packages/graphql-loadtest-core", "packages/graphql-loadtest-electron"]
+  "workspaces": ["packages/*"]
 }
