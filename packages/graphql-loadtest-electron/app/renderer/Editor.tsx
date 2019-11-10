@@ -41,6 +41,7 @@ export function Editor() {
   const [cycles, setCycles] = usePersistedState('cycles', 5);
 
   async function fetcher(graphQLParams: any) {
+    console.log('params', graphQLParams);
     const response = await fetch(endpoint, {
       method: 'post',
       headers: {

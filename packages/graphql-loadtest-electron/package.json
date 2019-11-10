@@ -1,5 +1,5 @@
 {
-  "name": "electron-react-parcel-boilerplate",
+  "name": "graphql-loadtest-electron",
   "version": "0.7.7",
   "description": "A boilerplate for Electron + React + Parcel.",
   "main": "app/main/.parcel/main.js",
