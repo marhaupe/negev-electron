@@ -22,6 +22,10 @@ export async function execute(config: Config): Promise<Stats> {
     const { arrivalRate, duration, pause } = phase;
 
     const phaseEndDate = Date.now() + duration * 1000;
+
+    // TODO: With this current approach, theres a pretty low limit `arrivalRate` since there
+    // is only one second available for kicking off all requests. On my machine (i5 6600@3.3GHz, 16GB Ram@2133MHz) the
+    // limit is currently around 3700.
     while (Date.now() < phaseEndDate) {
       // `dateInOneSecond` stores the date advanced by one second.
       // This allows us to kick off $arrivalRate requests per second.
