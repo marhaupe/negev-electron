@@ -1,4 +1,5 @@
 import { FetchParams } from './types';
+import fetch from 'node-fetch';
 
 export type DecoratedResponse = {
   json: any;
