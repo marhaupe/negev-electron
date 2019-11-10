@@ -9,8 +9,12 @@ import {
 } from './calculator';
 import { DecoratedResponse, fetchWithDecoration } from './fetcher';
 
-export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
+export async function execute(config: Config): Promise<Stats> {
+  validateConfig(config);
+
+  const { phases, fetchParams } = config;
   // This is a store all requests that have been kicked off.
+
   // This allows us to later await all pending requests.
   const kickedOffRequests: Promise<DecoratedResponse>[] = [];
 
@@ -53,4 +57,15 @@ export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
     minDurationPerRequest,
     jitter,
   };
+}
+
+function validateConfig(config: Config): Error | void {
+  config.phases.forEach(phase => {
+    if (phase.duration < 1) {
+      throw new Error('phases with a duration shorter than one second are currently not supported.');
+    }
+    if (phase.arrivalRate === 0) {
+      throw new Error('phases with an arrival rate set to zero are invalid.');
+    }
+  });
 }
