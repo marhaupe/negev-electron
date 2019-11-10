@@ -1,46 +1,6 @@
 import { sleep } from './__utils__';
 import fetch from 'node-fetch';
-
-type Phase = {
-  /**
-   * Configures how many requests arrive per second.
-   */
-  arrivalRate: number;
-  /**
-   * Configures the duration of the phase in seconds.
-   */
-  duration: number;
-
-  /**
-   * Configures the duration of the pause after the phase.
-   */
-  pause?: number;
-
-  /**
-   * TODO: This might be a nifty functionality
-   * Configures the amount of new requests that are being sent at the end of the phase. The number of requests
-   * increase linearly over the time of the phase.
-   */
-  // rampTo: number;
-};
-
-type Config = {
-  /**
-   * Configures the phase.
-   */
-  phases: Phase[];
-  /**
-   * Configures the params being passed to the `fetch`-Requests.
-   */
-  fetchParams: FetchParams;
-};
-
-type Stats = {
-  completeDuration: number;
-  maxDurationPerRequest: number;
-  minDurationPerRequest: number;
-  averageDurationPerRequest: number;
-};
+import { FetchParams, Config, Stats } from './types';
 
 export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
   const executionBeginDate = Date.now();
@@ -76,6 +36,9 @@ export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
   await Promise.all(kickedOffRequests);
   const executionEndDate = Date.now();
   const completeDuration = executionEndDate - executionBeginDate;
+
+  // TODO: This is wrong because it accounts the time slept during each phase, e.g when `remainingTime`
+  // is greater than zero after kicking of the requests.
   const averageDurationPerRequest = Math.round(
     completeDuration / kickedOffRequests.length
   );
@@ -87,25 +50,6 @@ export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
     minDurationPerRequest: 0,
   };
 }
-
-type FetchParams = {
-  /**
-   * Configures the headers being added to the requests.
-   */
-  headers?: Record<string, string>;
-  /**
-   * Configures the query / mutation being sent.
-   */
-  body: {
-    query: string;
-    operationName?: string;
-    variables?: any;
-  };
-  /**
-   * Configures the url under test.
-   */
-  url: string;
-};
 
 export async function fetchResponse({
   url,
