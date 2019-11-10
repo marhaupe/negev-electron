@@ -1,11 +1,18 @@
 import { sleep } from './__utils__';
-import fetch from 'node-fetch';
-import { FetchParams, Config, Stats } from './types';
+import { Config, Stats } from './types';
+import {
+  calculateJitter,
+  calculateTotalDuration,
+  calculateAverageDurationPerRequest,
+  calculateMinDurationPerRequest,
+  calculateMaxDurationPerRequest,
+} from './calculator';
+import { DecoratedResponse, fetchWithDecoration } from './fetcher';
 
 export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
   // This is a store all requests that have been kicked off.
   // This allows us to later await all pending requests.
-  const kickedOffRequests: Promise<LoadTestResponse>[] = [];
+  const kickedOffRequests: Promise<DecoratedResponse>[] = [];
 
   for (const phase of phases) {
     const { arrivalRate, duration, pause } = phase;
@@ -15,12 +22,8 @@ export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
       // `dateInOneSecond` stores the date advanced by one second.
       // This allows us to kick off $arrivalRate requests per second.
       const dateInOneSecond = Date.now() + 1000;
-      for (
-        let i = 0;
-        i < arrivalRate && Date.now() < dateInOneSecond;
-        i = i + 1
-      ) {
-        const kickedOffRequest = fetchResponse(fetchParams);
+      for (let i = 0; i < arrivalRate && Date.now() < dateInOneSecond; i = i + 1) {
+        const kickedOffRequest = fetchWithDecoration(fetchParams);
         kickedOffRequests.push(kickedOffRequest);
       }
       // Once the requests have been kick off, sleep the remaining fractions of a second.
@@ -33,47 +36,21 @@ export async function execute({ phases, fetchParams }: Config): Promise<Stats> {
     }
   }
   const responses = await Promise.all(kickedOffRequests);
-  let completeDuration = 0;
-  responses.forEach(response => (completeDuration += response.duration));
 
-  const averageDurationPerRequest = Math.round(
-    completeDuration / kickedOffRequests.length
-  );
+  const totalRequests = kickedOffRequests.length;
+  const totalDuration = calculateTotalDuration(responses);
+  const averageDurationPerRequest = calculateAverageDurationPerRequest(totalDuration, totalRequests);
+
+  const minDurationPerRequest = calculateMinDurationPerRequest(responses);
+  const maxDurationPerRequest = calculateMaxDurationPerRequest(responses);
+  const jitter = calculateJitter(minDurationPerRequest, maxDurationPerRequest, totalRequests);
 
   return {
-    completeDuration,
+    totalDuration,
+    totalRequests,
     averageDurationPerRequest,
-    maxDurationPerRequest: 0,
-    minDurationPerRequest: 0,
-  };
-}
-
-type LoadTestResponse = {
-  json: any;
-  duration: number;
-};
-export async function fetchResponse({
-  url,
-  headers,
-  body,
-}: FetchParams): Promise<LoadTestResponse> {
-  const startDate = Date.now();
-
-  const response = await fetch(url, {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-    body: JSON.stringify(body),
-  });
-
-  const endDate = Date.now();
-  const duration = endDate - startDate;
-  const json = await response.json();
-
-  return {
-    json,
-    duration,
+    maxDurationPerRequest,
+    minDurationPerRequest,
+    jitter,
   };
 }

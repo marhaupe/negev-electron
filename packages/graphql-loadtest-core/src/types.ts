@@ -33,10 +33,12 @@ export type Config = {
 };
 
 export type Stats = {
-  completeDuration: number;
+  totalRequests: number;
+  totalDuration: number;
   maxDurationPerRequest: number;
   minDurationPerRequest: number;
   averageDurationPerRequest: number;
+  jitter: number;
 };
 
 export type FetchParams = {
