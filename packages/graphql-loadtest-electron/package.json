@@ -26,8 +26,8 @@
     "electron-is-dev": "^1.1.0",
     "graphiql": "^0.16.0",
     "graphql": "^14.5.8",
-    "isomorphic-fetch": "^2.2.1",
-    "graphql-loadtest-core": "0.1.0"
+    "graphql-loadtest-core": "0.1.0",
+    "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
