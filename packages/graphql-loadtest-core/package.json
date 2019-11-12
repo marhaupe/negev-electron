@@ -1,11 +1,12 @@
 {
   "name": "graphql-loadtest-core",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "license": "MIT",
   "author": "marhaupe",
   "main": "dist/index.js",
   "module": "dist/graphql-loadtest-core.esm.js",
   "typings": "dist/index.d.ts",
+  "private": true,
   "files": [
     "dist"
   ],
