@@ -2,14 +2,13 @@ import { FetchParams } from './types';
 import fetch from 'node-fetch';
 
 export type DecoratedResponse = {
-  json: any;
   duration: number;
 };
 
 export async function fetchWithDecoration({ url, headers, body }: FetchParams): Promise<DecoratedResponse> {
   const startDate = Date.now();
 
-  const response = await fetch(url, {
+  await fetch(url, {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
@@ -20,10 +19,8 @@ export async function fetchWithDecoration({ url, headers, body }: FetchParams): 
 
   const endDate = Date.now();
   const duration = endDate - startDate;
-  const json = await response.json();
 
   return {
-    json,
     duration,
   };
 }
