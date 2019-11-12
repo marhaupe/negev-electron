@@ -1,4 +1,4 @@
-import { execute } from '../executor';
+import { executeLoadtest } from '../executor';
 
 describe('tests execute', () => {
   it('tests with a basic configuration', async () => {
@@ -13,7 +13,7 @@ describe('tests execute', () => {
         url: 'http://example.com/query',
       },
     };
-    const result = await execute(config);
+    const result = await executeLoadtest(config);
     expect(result).toBeDefined();
   });
 
@@ -30,7 +30,7 @@ describe('tests execute', () => {
         url: 'http://example.com/query',
       },
     };
-    const result = await execute(config);
+    const result = await executeLoadtest(config);
     expect(result).toBeDefined();
     expect(result.totalRequests).toEqual(arrivalRate);
   });
@@ -49,7 +49,7 @@ describe('tests execute', () => {
         url: 'http://example.com/query',
       },
     };
-    const result = await execute(config);
+    const result = await executeLoadtest(config);
     expect(result).toBeDefined();
     expect(result.totalRequests).toEqual(arrivalRate * duration);
   });

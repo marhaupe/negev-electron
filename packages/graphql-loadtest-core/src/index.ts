@@ -1,2 +1,2 @@
-export { execute } from './executor';
+export { executeLoadtest } from './executor';
 export * from './types';

@@ -1,7 +1,7 @@
 import { format } from 'url';
 import { BrowserWindow, app, ipcMain } from 'electron';
 import { resolve } from 'app-root-path';
-import { execute } from 'graphql-loadtest-core';
+import { executeLoadtest } from 'graphql-loadtest-core';
 import isDev from 'electron-is-dev';
 
 app.on('ready', async () => {
@@ -50,6 +50,6 @@ ipcMain.on('loadtestFetcher-request', async (event: any, config: any) => {
   //     url: 'https://marhaupe.de/query'
   //   }
   // };
-  const res = await execute(config);
+  const res = await executeLoadtest(config);
   event.reply('loadtestFetcher-response', res);
 });

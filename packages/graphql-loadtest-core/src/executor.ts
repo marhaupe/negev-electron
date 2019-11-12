@@ -9,7 +9,7 @@ import {
 } from './calculator';
 import { DecoratedResponse, fetchWithDecoration } from './fetcher';
 
-export async function execute(config: Config): Promise<Stats> {
+export async function executeLoadtest(config: Config): Promise<Stats> {
   validateConfig(config);
 
   const { phases, fetchParams } = config;
