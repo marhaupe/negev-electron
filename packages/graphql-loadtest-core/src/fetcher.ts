@@ -1,11 +1,10 @@
-import { FetchParams } from './types';
 import fetch from 'node-fetch';
 
 export type DecoratedResponse = {
   duration: number;
 };
 
-export async function fetchWithDecoration({ url, headers, body }: FetchParams): Promise<DecoratedResponse> {
+export async function fetchWithDecoration({ url, headers, body }: any): Promise<DecoratedResponse> {
   const startDate = Date.now();
 
   await fetch(url, {

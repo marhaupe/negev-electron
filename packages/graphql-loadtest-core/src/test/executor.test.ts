@@ -4,14 +4,12 @@ describe('tests execute', () => {
   it('tests with a basic configuration', async () => {
     const config = {
       phases: [{ arrivalRate: 1, duration: 1 }],
-      fetchParams: {
-        body: {
-          operationName: undefined,
-          query: '{name}',
-          variables: null,
-        },
-        url: 'http://example.com/query',
+      body: {
+        operationName: undefined,
+        query: '{name}',
+        variables: null,
       },
+      url: 'http://example.com/query',
     };
     const result = await executeLoadtest(config);
     expect(result).toBeDefined();
@@ -21,14 +19,12 @@ describe('tests execute', () => {
     const arrivalRate = 100;
     const config = {
       phases: [{ arrivalRate, duration: 1 }],
-      fetchParams: {
-        body: {
-          operationName: undefined,
-          query: '{name}',
-          variables: null,
-        },
-        url: 'http://example.com/query',
+      body: {
+        operationName: undefined,
+        query: '{name}',
+        variables: null,
       },
+      url: 'http://example.com/query',
     };
     const result = await executeLoadtest(config);
     expect(result).toBeDefined();
@@ -40,14 +36,12 @@ describe('tests execute', () => {
     const duration = 2;
     const config = {
       phases: [{ arrivalRate, duration }],
-      fetchParams: {
-        body: {
-          operationName: undefined,
-          query: '{name}',
-          variables: null,
-        },
-        url: 'http://example.com/query',
+      body: {
+        operationName: undefined,
+        query: '{name}',
+        variables: null,
       },
+      url: 'http://example.com/query',
     };
     const result = await executeLoadtest(config);
     expect(result).toBeDefined();

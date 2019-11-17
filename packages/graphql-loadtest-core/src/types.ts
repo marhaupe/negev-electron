@@ -23,24 +23,9 @@ export type Phase = {
 
 export type Config = {
   /**
-   * Configures the phase.
+   * Configures the url under test.
    */
-  phases: Phase[];
-  /**
-   * Configures the params being passed to the `fetch`-Requests.
-   */
-  fetchParams: FetchParams;
-};
-
-export type Stats = {
-  totalRequests: number;
-  maxDurationPerRequest: number;
-  minDurationPerRequest: number;
-  averageDurationPerRequest: number;
-  jitter: number;
-};
-
-export type FetchParams = {
+  url: string;
   /**
    * Configures the headers being added to the requests.
    */
@@ -54,7 +39,15 @@ export type FetchParams = {
     variables?: any;
   };
   /**
-   * Configures the url under test.
+   * Configures the phase.
    */
-  url: string;
+  phases: Phase[];
+};
+
+export type Stats = {
+  totalRequests: number;
+  maxDurationPerRequest: number;
+  minDurationPerRequest: number;
+  averageDurationPerRequest: number;
+  jitter: number;
 };

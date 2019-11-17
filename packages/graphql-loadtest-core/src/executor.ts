@@ -12,7 +12,7 @@ import { DecoratedResponse, fetchWithDecoration } from './fetcher';
 export async function executeLoadtest(config: Config): Promise<Stats> {
   validateConfig(config);
 
-  const { phases, fetchParams } = config;
+  const { phases, url, headers, body } = config;
   // This is a store all requests that have been kicked off.
 
   // This allows us to later await all pending requests.
@@ -31,7 +31,7 @@ export async function executeLoadtest(config: Config): Promise<Stats> {
       // This allows us to kick off $arrivalRate requests per second.
       const dateInOneSecond = Date.now() + 1000;
       for (let i = 0; i < arrivalRate && Date.now() < dateInOneSecond; i = i + 1) {
-        const kickedOffRequest = fetchWithDecoration(fetchParams);
+        const kickedOffRequest = fetchWithDecoration({ url, headers, body });
         kickedOffRequests.push(kickedOffRequest);
       }
       // Once the requests have been kick off, sleep the remaining fractions of a second.
