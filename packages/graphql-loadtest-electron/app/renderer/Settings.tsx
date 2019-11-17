@@ -10,9 +10,9 @@ export function Settings() {
       <>
         {config.phases.map((phase, index) => {
           return (
-            <div className="my-8 p-4 container mx-auto border rounded-lg shadow-md">
+            <div className="my-8 p-6 container mx-auto border rounded-lg shadow-md">
               <div className="relative">
-                <p className="inline text-xl font-bold my-4">Phase {index}</p>
+                <p className="text-xl font-bold mb-4">Phase {index}</p>
                 <button
                   onClick={() => {
                     const newConfig = { ...config };
@@ -37,7 +37,7 @@ export function Settings() {
                   </svg>
                 </button>
               </div>
-              <div className="p-2">
+              <div className="py-2">
                 <label htmlFor="duration">Duration (in seconds)</label>
                 <input
                   className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
@@ -52,7 +52,7 @@ export function Settings() {
                   }}
                 />
               </div>
-              <div className="p-2">
+              <div className="py-2">
                 <label htmlFor="arrivalRate">Arrival Rate (per second)</label>
                 <input
                   className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
@@ -75,11 +75,12 @@ export function Settings() {
   }
 
   return (
-    <div className="container mx-auto py-10 relative">
-      <Link className="absolute left-0 top-0" to={'/'}>
+    <div className="container h-full mx-auto py-10 relative">
+      <Link className="block underline text-sm mb-3" to={'/'}>
         Go back
       </Link>
-      <label htmlFor="endpoint">Duration (in seconds)</label>
+      <p className="block text-3xl mb-6 font-bold">Settings</p>
+      <label htmlFor="endpoint">Endpoint</label>
       <input
         name="endpoint"
         className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
