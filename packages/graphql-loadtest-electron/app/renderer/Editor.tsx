@@ -3,14 +3,11 @@ import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
 import { usePersistedState } from './__utils__';
 import 'graphiql/graphiql.css';
+import { Config } from 'graphql-loadtest-core';
 const { ipcRenderer } = window.require('electron');
 
-export function Editor() {
-  const [endpoint, setEndpoint] = usePersistedState('endpoint', '');
-  const [duration, setDuration] = usePersistedState<number | undefined>('duration', undefined);
-  const [arrivalRate, setArrivalRate] = usePersistedState<number | undefined>('arrivalRate', undefined);
-
-  async function defaultFetcher(graphQLParams: any) {
+async function defaultFetcher(endpoint: string, graphQLParams: any) {
+  try {
     const response = await fetch(endpoint, {
       method: 'post',
       headers: {
@@ -19,29 +16,33 @@ export function Editor() {
       body: JSON.stringify(graphQLParams)
     });
     return await response.json();
+  } catch (error) {
+    return {};
   }
+}
 
-  async function loadtestFetcher(graphQLParams: any) {
-    const config = {
-      phases: [{ arrivalRate, duration }],
-      fetchParams: {
-        body: graphQLParams,
-        url: endpoint
-      }
-    };
-    return new Promise((resolve, _reject) => {
-      ipcRenderer.send('loadtestFetcher-request', config);
-      ipcRenderer.on('loadtestFetcher-response', (_event: any, arg: any) => {
-        resolve(arg);
-      });
+async function loadtestFetcher(config: Config) {
+  return new Promise((resolve, _reject) => {
+    ipcRenderer.send('loadtestFetcher-request', config);
+    ipcRenderer.once('loadtestFetcher-request', (_event: any, arg: any) => {
+      resolve(arg);
     });
-  }
+  });
+}
+
+export function Editor() {
+  const [endpoint, setEndpoint] = usePersistedState('endpoint', '');
+  const [duration, setDuration] = usePersistedState('duration', 5);
+  const [arrivalRate, setArrivalRate] = usePersistedState('arrivalRate', 20);
 
   async function fetcher(graphQLParams: any) {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
-      return defaultFetcher(graphQLParams);
+      return defaultFetcher(endpoint, graphQLParams);
     }
-    return loadtestFetcher(graphQLParams);
+    return loadtestFetcher({
+      fetchParams: { url: endpoint, body: graphQLParams },
+      phases: [{ arrivalRate, duration }]
+    });
   }
 
   return (
