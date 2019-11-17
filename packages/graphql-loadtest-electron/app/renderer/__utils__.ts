@@ -1,25 +1,19 @@
-import { useState, useEffect } from 'react';
-const { ipcRenderer } = window.require('electron');
+import { useState } from 'react';
 
 export function usePersistedState<S>(key: string, initialState: S | (() => S)): [S, (value: S) => void] {
-  const [state, setState] = useState(initialState);
-
-  useEffect(() => {
-    ipcRenderer.send('getPersistedState');
-    ipcRenderer.once('getPersistedState', onGetPersistedState);
-
-    function onGetPersistedState(_event: any, persistedState: any) {
-      if (persistedState[key]) {
-        setState(persistedState[key]);
-      }
+  const [state, setState] = useState(() => {
+    const persistedState = window.localStorage.getItem(key);
+    if (persistedState) {
+      return JSON.parse(persistedState);
     }
-    // Since we can't do this kind of stuff in the useState-callback to setup the initial
-    // state, we do it only one time once the component mounted.
-    // eslint-disable-next-line
-  }, []);
+    if (typeof initialState === 'function') {
+      return (initialState as () => S)();
+    }
+    return initialState;
+  });
 
   function setPersistedState(value: S) {
-    ipcRenderer.send('setPersistedState', { key, value });
+    window.localStorage.setItem(key, JSON.stringify(value));
     setState(value);
   }
 
