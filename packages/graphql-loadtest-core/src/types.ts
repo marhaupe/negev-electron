@@ -34,7 +34,6 @@ export type Config = {
 
 export type Stats = {
   totalRequests: number;
-  totalDuration: number;
   maxDurationPerRequest: number;
   minDurationPerRequest: number;
   averageDurationPerRequest: number;

@@ -46,15 +46,14 @@ export async function executeLoadtest(config: Config): Promise<Stats> {
   const responses = await Promise.all(kickedOffRequests);
 
   const totalRequests = kickedOffRequests.length;
-  const totalDuration = calculateTotalDuration(responses);
-  const averageDurationPerRequest = calculateAverageDurationPerRequest(totalDuration, totalRequests);
+  const combinedDuration = calculateTotalDuration(responses);
+  const averageDurationPerRequest = calculateAverageDurationPerRequest(combinedDuration, totalRequests);
 
   const minDurationPerRequest = calculateMinDurationPerRequest(responses);
   const maxDurationPerRequest = calculateMaxDurationPerRequest(responses);
-  const jitter = calculateJitter(minDurationPerRequest, maxDurationPerRequest, totalRequests);
+  const jitter = calculateJitter(maxDurationPerRequest, minDurationPerRequest, averageDurationPerRequest);
 
   return {
-    totalDuration,
     totalRequests,
     averageDurationPerRequest,
     maxDurationPerRequest,
