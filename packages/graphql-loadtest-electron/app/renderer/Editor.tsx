@@ -30,7 +30,7 @@ async function loadtestFetcher(config: Config) {
   });
 }
 
-export function Editor() {
+export function Editor(props: any) {
   const [endpoint, setEndpoint] = usePersistedState('endpoint', '');
   const [duration, setDuration] = usePersistedState('duration', 5);
   const [arrivalRate, setArrivalRate] = usePersistedState('arrivalRate', 20);
@@ -46,7 +46,10 @@ export function Editor() {
     });
   }
 
-  // Example of using the GraphiQL Component API via a toolbar button.
+  function handleClickSettingsButton() {
+    props.history.push('/settings');
+  }
+
   function handleClickPrettifyButton() {
     const editor = (editorRef.current as any).getQueryEditor();
     const currentText = editor.getValue();
@@ -60,6 +63,7 @@ export function Editor() {
       <GraphiQL.Logo>Custom Logo</GraphiQL.Logo>
       <GraphiQL.Toolbar>
         <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
+        <GraphiQL.Button onClick={handleClickSettingsButton} label="Settings" title="Settings" />
 
         <input value={endpoint} placeholder={'Endpoint'} onChange={event => setEndpoint(event.target.value)} />
         <input
