@@ -5,7 +5,6 @@
   "license": "MIT",
   "description": "graphql-loadtest-electron",
   "main": "app/main/.parcel/main.js",
-  "private": true,
   "scripts": {
     "start": "run-s main:build watch",
     "release": "run-s parcel:build \"electron:build {@}\" --",
@@ -27,7 +26,7 @@
     "electron-is-dev": "^1.1.0",
     "graphiql": "^0.16.0",
     "graphql": "^14.5.8",
-    "graphql-loadtest-core": "^0.0.1",
+    "graphql-loadtest-core": "0.0.1",
     "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {

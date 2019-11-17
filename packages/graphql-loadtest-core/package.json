@@ -6,7 +6,6 @@
   "main": "dist/index.js",
   "module": "dist/graphql-loadtest-core.esm.js",
   "typings": "dist/index.d.ts",
-  "private": true,
   "files": [
     "dist"
   ],
@@ -31,6 +30,7 @@
   "devDependencies": {
     "@types/jest": "^24.0.22",
     "@types/node-fetch": "^2.5.3",
+    "@types/sinon": "^7.5.0",
     "fetch-mock": "^7.7.3",
     "husky": "^3.0.9",
     "tsdx": "^0.11.0",
