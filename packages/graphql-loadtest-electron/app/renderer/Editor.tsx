@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
 import { usePersistedState } from './__utils__';
@@ -34,6 +34,7 @@ export function Editor() {
   const [endpoint, setEndpoint] = usePersistedState('endpoint', '');
   const [duration, setDuration] = usePersistedState('duration', 5);
   const [arrivalRate, setArrivalRate] = usePersistedState('arrivalRate', 20);
+  const editorRef = useRef(null);
 
   async function fetcher(graphQLParams: any) {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
@@ -45,19 +46,20 @@ export function Editor() {
     });
   }
 
+  // Example of using the GraphiQL Component API via a toolbar button.
+  function handleClickPrettifyButton() {
+    const editor = (editorRef.current as any).getQueryEditor();
+    const currentText = editor.getValue();
+    const { parse, print } = require('graphql');
+    const prettyText = print(parse(currentText));
+    editor.setValue(prettyText);
+  }
+
   return (
-    <GraphiQL fetcher={fetcher}>
+    <GraphiQL ref={editorRef} fetcher={fetcher}>
       <GraphiQL.Logo>Custom Logo</GraphiQL.Logo>
       <GraphiQL.Toolbar>
-        <GraphiQL.Button
-          // onClick={this.handleClickPrettifyButton}
-          label="Prettify"
-          title="Prettify Query (Shift-Ctrl-P)"
-        />
-
-        <GraphiQL.Menu label="File" title="File">
-          <GraphiQL.MenuItem label="Save" title="Save" onSelect={() => {}} />
-        </GraphiQL.Menu>
+        <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
 
         <input value={endpoint} placeholder={'Endpoint'} onChange={event => setEndpoint(event.target.value)} />
         <input
