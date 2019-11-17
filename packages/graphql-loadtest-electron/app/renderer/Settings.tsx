@@ -1,27 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from './context';
-import styled from 'styled-components';
-
-const PhasesConfigWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const PhaseWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
 
 export function Settings() {
   const { config, setConfig } = useAppContext();
 
   function renderPhasesConfig() {
     return (
-      <PhasesConfigWrapper>
+      <div>
         {config.phases.map((phase, index) => {
           return (
-            <PhaseWrapper>
+            <>
               <label htmlFor="duration">Duration (in seconds):</label>
               <input
                 name="duration"
@@ -46,10 +35,10 @@ export function Settings() {
                   setConfig(newConfig);
                 }}
               />
-            </PhaseWrapper>
+            </>
           );
         })}
-      </PhasesConfigWrapper>
+      </div>
     );
   }
 
