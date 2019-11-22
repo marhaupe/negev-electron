@@ -1,9 +1,5 @@
 import { DecoratedResponse } from './fetcher';
 
-function roundDecimalPlaces(num: number, count: number) {
-  const x = Math.pow(10, count);
-  return Math.round(num * x) / x;
-}
 export function calculateJitter(
   maxDurationPerRequest: number,
   minDurationPerRequest: number,
@@ -17,6 +13,7 @@ export function calculateJitter(
 export function calculateMinDurationPerRequest(responses: DecoratedResponse[]): number {
   return Math.min(...responses.map(response => response.duration));
 }
+
 export function calculateMaxDurationPerRequest(responses: DecoratedResponse[]): number {
   return Math.max(...responses.map(response => response.duration));
 }
@@ -29,4 +26,9 @@ export function calculateTotalDuration(responses: DecoratedResponse[]): number {
   let combinedDuration = 0;
   responses.forEach(response => (combinedDuration += response.duration));
   return combinedDuration;
+}
+
+function roundDecimalPlaces(num: number, count: number) {
+  const x = Math.pow(10, count);
+  return Math.round(num * x) / x;
 }

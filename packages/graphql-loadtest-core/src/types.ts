@@ -23,6 +23,14 @@ export type Phase = {
 
 export type Config = {
   /**
+   * Configures the phase.
+   */
+  phases: Phase[];
+  fetchConfig: FetchConfig;
+};
+
+export type FetchConfig = {
+  /**
    * Configures the url under test.
    */
   url: string;
@@ -38,10 +46,6 @@ export type Config = {
     operationName?: string;
     variables?: any;
   };
-  /**
-   * Configures the phase.
-   */
-  phases: Phase[];
 };
 
 export type Stats = {

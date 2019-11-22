@@ -68,8 +68,8 @@
     "typescript": "^3.5.2"
   },
   "build": {
-    "productName": "ElectronReactParcel",
-    "appId": "org.shamofu.ElectronReactParcel",
+    "productName": "graphql-loadtest-electron",
+    "appId": "com.marhaupe.graphql-loadtest-electron",
     "files": [
       "app/**",
       "!app/main/main.ts",
