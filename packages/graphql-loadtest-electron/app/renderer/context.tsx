@@ -2,23 +2,20 @@ import React, { useContext } from 'react';
 import { Config } from 'graphql-loadtest-core';
 import { usePersistedState } from './__utils__';
 
-const defaultConfig = {
+const defaultConfig: Config = {
   phases: [],
-  headers: undefined,
-  url: ''
+  fetchConfig: {
+    headers: undefined,
+    url: '',
+    body: {
+      query: ''
+    }
+  }
 };
 
-type AppConfig = Pick<Config, 'phases' | 'headers' | 'url'>;
+type ContextType = [Config, (config: Config) => void];
 
-type ContextType = {
-  config: AppConfig;
-  setConfig: (config: AppConfig) => void;
-};
-
-const AppContext = React.createContext<ContextType>({
-  config: defaultConfig,
-  setConfig: (config: AppConfig) => {}
-});
+const AppContext = React.createContext<ContextType>([defaultConfig, (config: Config) => {}]);
 
 type Props = {
   children: React.ReactNode;
@@ -29,7 +26,7 @@ export function useAppContext() {
 }
 
 export function AppContextProvider({ children }: Props) {
-  const [config, setConfig] = usePersistedState<AppConfig>('appConfig', defaultConfig);
+  const value = usePersistedState<Config>('appConfig', defaultConfig);
 
-  return <AppContext.Provider value={{ config, setConfig }}>{children}</AppContext.Provider>;
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

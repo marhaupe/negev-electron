@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAppContext } from './context';
 
 export function Settings() {
-  const { config, setConfig } = useAppContext();
+  const [config, setConfig] = useAppContext();
 
   function renderPhasesConfig() {
     return (
@@ -80,14 +80,6 @@ export function Settings() {
         Go back
       </Link>
       <p className="block text-3xl mb-6 font-bold">Settings</p>
-      <label htmlFor="endpoint">Endpoint</label>
-      <input
-        name="endpoint"
-        className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
-        value={config.url}
-        placeholder={'Endpoint'}
-        onChange={event => setConfig({ ...config, url: event.target.value })}
-      />
       <button
         className="h-16 w-16 rounded-full items-center justify-center bg-green-500 absolute mr-5 mb-5 right-0 bottom-0"
         onClick={() => setConfig({ ...config, phases: [...config.phases, { arrivalRate: 1, duration: 1 }] })}

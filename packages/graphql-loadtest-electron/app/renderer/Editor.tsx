@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
 import 'graphiql/graphiql.css';
@@ -33,15 +33,14 @@ async function loadtestFetcher(config: Config) {
 
 export function Editor(props: any) {
   const editorRef = useRef(null);
-  const { config } = useAppContext();
+  const [config, setConfig] = useAppContext();
+
+  useState();
   async function fetcher(graphQLParams: any) {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
-      return defaultFetcher(config.url, graphQLParams);
+      return defaultFetcher(config.fetchConfig.url, graphQLParams);
     }
-    return loadtestFetcher({
-      ...config,
-      body: graphQLParams
-    });
+    return loadtestFetcher(config);
   }
 
   function handleClickPrettifyButton() {
@@ -52,10 +51,36 @@ export function Editor(props: any) {
     editor.setValue(prettyText);
   }
 
+  // We want our context to be the global source of truth. This introduces redundant data,
+  // but this is fine
+  function handleEditQuery(value: any) {
+    setConfig({
+      ...config,
+      fetchConfig: {
+        ...config.fetchConfig,
+        body: value
+      }
+    });
+  }
+
   return (
-    <GraphiQL ref={editorRef} fetcher={fetcher}>
-      <GraphiQL.Logo>Custom Logo</GraphiQL.Logo>
+    <GraphiQL
+      query={config && config.fetchConfig && config.fetchConfig.body}
+      onEditQuery={handleEditQuery}
+      ref={editorRef}
+      fetcher={fetcher}
+    >
+      <GraphiQL.Logo>graphql-loadtest</GraphiQL.Logo>
       <GraphiQL.Toolbar>
+        <input
+          name="endpoint"
+          className="appearance-none bg-white rounded border focus:border-gray-600 border-gray-400 text-gray-700 mx-2 py-1 px-2 leading-tight focus:outline-none"
+          type="text"
+          value={config.fetchConfig.url}
+          aria-label="Endpoint"
+          placeholder="Endpoint"
+          onChange={event => setConfig({ ...config, fetchConfig: { ...config.fetchConfig, url: event.target.value } })}
+        />
         <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
         <Link to={'/settings'}>
           <GraphiQL.Button label="Settings" title="Open settings page" />
