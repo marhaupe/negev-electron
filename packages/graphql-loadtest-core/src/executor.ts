@@ -70,10 +70,10 @@ async function executePhase(phase: Phase, fetchConfig: FetchConfig): Promise<Dec
 function validateConfig(config: Config): Error | void {
   config.phases.forEach(phase => {
     if (phase.duration < 1) {
-      throw new Error('phases with a duration shorter than one second are currently not supported.');
+      throw 'phases with a duration shorter than one second are currently not supported.';
     }
     if (phase.arrivalRate === 0) {
-      throw new Error('phases with an arrival rate set to zero are invalid.');
+      throw 'phases with an arrival rate set to zero are invalid.';
     }
   });
 }
