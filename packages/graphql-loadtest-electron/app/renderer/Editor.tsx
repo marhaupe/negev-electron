@@ -58,6 +58,19 @@ export function Editor() {
     setConfig(newConfig);
   }
 
+  function handleClickExportButton() {
+    ipcRenderer.send('request:saveConfig', config);
+  }
+
+  function handleClickImportButton() {
+    ipcRenderer.send('request:loadConfig');
+    ipcRenderer.once('response:loadConfig', (_event: any, config: Config) => {
+      if (config) {
+        setConfig(config);
+      }
+    });
+  }
+
   return (
     <GraphiQL
       query={config && config.fetchConfig && config.fetchConfig.body.query}
@@ -80,6 +93,8 @@ export function Editor() {
         <Link to={'/settings'}>
           <GraphiQL.Button label="Settings" title="Open settings page" />
         </Link>
+        <GraphiQL.Button onClick={handleClickExportButton} label="Export" title="Export config" />
+        <GraphiQL.Button onClick={handleClickImportButton} label="Import" title="Import config" />
       </GraphiQL.Toolbar>
     </GraphiQL>
   );
