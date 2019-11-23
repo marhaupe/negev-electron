@@ -10,7 +10,10 @@ import {
 import { DecoratedResponse, fetchWithDecoration } from './fetcher';
 
 export async function executeLoadtest(config: Config): Promise<Stats[]> {
-  validateConfig(config);
+  const validationResult = validateConfig(config);
+  if (!validationResult.isValid) {
+    throw 'config is not valid. ' + validationResult.reason;
+  }
 
   const { phases, fetchConfig } = config;
 
@@ -67,13 +70,25 @@ async function executePhase(phase: Phase, fetchConfig: FetchConfig): Promise<Dec
   return Promise.all(kickedOffRequests);
 }
 
-function validateConfig(config: Config): Error | void {
-  config.phases.forEach(phase => {
+type ValidationResult = {
+  isValid: boolean;
+  reason?: string;
+};
+
+function validateConfig(config: Config): ValidationResult {
+  for (const phase of config.phases) {
     if (phase.duration < 1) {
-      throw 'phases with a duration shorter than one second are currently not supported.';
+      return {
+        isValid: false,
+        reason: 'phases with a duration shorter than one second are currently not supported.',
+      };
     }
     if (phase.arrivalRate === 0) {
-      throw 'phases with an arrival rate set to zero are invalid.';
+      return {
+        isValid: false,
+        reason: 'phases with an arrival rate set to zero are invalid.',
+      };
     }
-  });
+  }
+  return { isValid: true };
 }
