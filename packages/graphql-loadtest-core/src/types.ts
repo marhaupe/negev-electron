@@ -37,7 +37,7 @@ export type FetchConfig = {
   /**
    * Configures the headers being added to the requests.
    */
-  headers?: Record<string, string>;
+  headers?: { [key: string]: string };
   /**
    * Configures the query / mutation being sent.
    */
