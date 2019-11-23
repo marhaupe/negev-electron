@@ -24,8 +24,8 @@ async function defaultFetcher(endpoint: string, graphQLParams: any) {
 
 async function loadtestFetcher(config: Config) {
   return new Promise((resolve, _reject) => {
-    ipcRenderer.send('loadtestFetcher-request', config);
-    ipcRenderer.once('loadtestFetcher-request', (_event: any, arg: any) => {
+    ipcRenderer.send('request:loadtestFetcher', config);
+    ipcRenderer.once('response:loadtestFetcher', (_event: any, arg: any) => {
       resolve(arg);
     });
   });
@@ -81,7 +81,6 @@ export function Editor() {
           <GraphiQL.Button label="Settings" title="Open settings page" />
         </Link>
       </GraphiQL.Toolbar>
-      <GraphiQL.Footer></GraphiQL.Footer>
     </GraphiQL>
   );
 }
