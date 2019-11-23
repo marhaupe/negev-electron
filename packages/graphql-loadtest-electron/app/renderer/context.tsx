@@ -8,8 +8,7 @@ const defaultConfig: Config = {
     headers: {},
     url: '',
     body: {
-      query: '',
-      operationName: ''
+      query: ''
     }
   }
 };

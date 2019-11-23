@@ -43,7 +43,6 @@ export type FetchConfig = {
    */
   body: {
     query: string;
-    operationName?: string;
     variables?: any;
   };
 };
