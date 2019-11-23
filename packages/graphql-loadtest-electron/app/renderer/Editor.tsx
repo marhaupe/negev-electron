@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
 import 'graphiql/graphiql.css';
@@ -31,11 +31,10 @@ async function loadtestFetcher(config: Config) {
   });
 }
 
-export function Editor(props: any) {
+export function Editor() {
   const editorRef = useRef(null);
   const [config, setConfig] = useAppContext();
 
-  useState();
   async function fetcher(graphQLParams: any) {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
       return defaultFetcher(config.fetchConfig.url, graphQLParams);
@@ -54,18 +53,14 @@ export function Editor(props: any) {
   // We want our context to be the global source of truth. This introduces redundant data,
   // but this is fine
   function handleEditQuery(value: any) {
-    setConfig({
-      ...config,
-      fetchConfig: {
-        ...config.fetchConfig,
-        body: value
-      }
-    });
+    const newConfig = { ...config };
+    newConfig.fetchConfig.body.query = value;
+    setConfig(newConfig);
   }
 
   return (
     <GraphiQL
-      query={config && config.fetchConfig && config.fetchConfig.body}
+      query={config && config.fetchConfig && config.fetchConfig.body.query}
       onEditQuery={handleEditQuery}
       ref={editorRef}
       fetcher={fetcher}
