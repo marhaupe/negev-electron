@@ -5,10 +5,11 @@ import { usePersistedState } from './__utils__';
 const defaultConfig: Config = {
   phases: [],
   fetchConfig: {
-    headers: undefined,
+    headers: {},
     url: '',
     body: {
-      query: ''
+      query: '',
+      operationName: ''
     }
   }
 };
