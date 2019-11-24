@@ -1,63 +1,63 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
 import 'graphiql/graphiql.css';
 import { Config, Stats } from 'graphql-loadtest-core';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAppConfigContext, useAppStatsContext } from './context';
 import './editor.css';
 const { ipcRenderer } = window.require('electron');
-
-async function defaultFetcher(endpoint: string, graphQLParams: any) {
-  try {
-    const response = await fetch(endpoint, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(graphQLParams)
-    });
-    return await response.json();
-  } catch (error) {
-    return {};
-  }
-}
-
-async function loadtestFetcher(config: Config): Promise<Stats[]> {
-  return new Promise((resolve, _reject) => {
-    ipcRenderer.send('request:loadtestFetcher', config);
-    ipcRenderer.once('response:loadtestFetcher', (_event: any, arg: any) => {
-      resolve(arg);
-    });
-  });
-}
 
 export function Editor() {
   const editorRef = useRef(null);
   const [config, setConfig] = useAppConfigContext();
   const [stats, setStats] = useAppStatsContext();
-  const history = useHistory();
 
-  useEffect(() => {
-    const element = document.querySelector('.resultWrap');
-    if (element) {
-      element && element.parentNode && element.parentNode.removeChild(element);
-    }
-    return () => {
-      if (element) {
-        element && element.parentNode && element.parentNode.appendChild(element);
-      }
-    };
-  }, []);
+  return (
+    <GraphiQL
+      query={config && config.fetchConfig && config.fetchConfig.body.query}
+      onEditQuery={handleEditQuery}
+      ref={editorRef}
+      fetcher={handleFetch}
+      editorTheme="material-palenight"
+    >
+      <GraphiQL.Logo>
+        <img alt="graphql-loadtest icon" src={require('../../build/icon.ico')} />
+      </GraphiQL.Logo>
+      <GraphiQL.Toolbar>
+        <input
+          name="endpoint"
+          className="appearance-none bg-white rounded border focus:border-gray-600 border-gray-400 text-gray-700 mx-2 py-1 px-2 leading-tight focus:outline-none"
+          type="text"
+          value={config.fetchConfig.url}
+          aria-label="Endpoint"
+          placeholder="Endpoint"
+          onChange={event => setConfig({ ...config, fetchConfig: { ...config.fetchConfig, url: event.target.value } })}
+        />
+        <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
+        <Link to={'/result'}>
+          <GraphiQL.Button label="Result" title="Open result page" />
+        </Link>
+        <Link to={'/settings'}>
+          <GraphiQL.Button label="Settings" title="Open settings page" />
+        </Link>
+        <GraphiQL.Button onClick={handleClickExportButton} label="Export" title="Export config" />
+        <GraphiQL.Button onClick={handleClickImportButton} label="Import" title="Import config" />
+      </GraphiQL.Toolbar>
+    </GraphiQL>
+  );
 
-  async function fetcher(graphQLParams: any) {
+  async function handleFetch(graphQLParams: any) {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
       return defaultFetcher(config.fetchConfig.url, graphQLParams);
     }
-    const result = await loadtestFetcher(config);
-    setStats(result);
-    history.push('/result');
-    return result;
+    const [queryResult, loadTestResult] = await Promise.all([
+      defaultFetcher(config.fetchConfig.url, graphQLParams),
+      loadtestFetcher(config)
+    ]);
+
+    setStats(loadTestResult);
+    return queryResult;
   }
 
   function handleClickPrettifyButton() {
@@ -86,40 +86,28 @@ export function Editor() {
       }
     });
   }
+}
 
-  return (
-    <GraphiQL
-      query={config && config.fetchConfig && config.fetchConfig.body.query}
-      onEditQuery={handleEditQuery}
-      ref={editorRef}
-      fetcher={fetcher}
-      editorTheme="material-palenight"
-    >
-      <GraphiQL.Logo>
-        <img src={require('../../build/icon.ico')} />
-      </GraphiQL.Logo>
-      <GraphiQL.Toolbar>
-        <input
-          name="endpoint"
-          className="appearance-none bg-white rounded border focus:border-gray-600 border-gray-400 text-gray-700 mx-2 py-1 px-2 leading-tight focus:outline-none"
-          type="text"
-          value={config.fetchConfig.url}
-          aria-label="Endpoint"
-          placeholder="Endpoint"
-          onChange={event => setConfig({ ...config, fetchConfig: { ...config.fetchConfig, url: event.target.value } })}
-        />
-        <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
-        {stats.length > 0 && (
-          <Link to={'/result'}>
-            <GraphiQL.Button label="Result" title="Open result page" />
-          </Link>
-        )}
-        <Link to={'/settings'}>
-          <GraphiQL.Button label="Settings" title="Open settings page" />
-        </Link>
-        <GraphiQL.Button onClick={handleClickExportButton} label="Export" title="Export config" />
-        <GraphiQL.Button onClick={handleClickImportButton} label="Import" title="Import config" />
-      </GraphiQL.Toolbar>
-    </GraphiQL>
-  );
+async function defaultFetcher(endpoint: string, graphQLParams: any) {
+  try {
+    const response = await fetch(endpoint, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(graphQLParams)
+    });
+    return await response.json();
+  } catch (error) {
+    return {};
+  }
+}
+
+async function loadtestFetcher(config: Config): Promise<Stats[]> {
+  return new Promise((resolve, _reject) => {
+    ipcRenderer.send('request:loadtestFetcher', config);
+    ipcRenderer.once('response:loadtestFetcher', (_event: any, arg: any) => {
+      resolve(arg);
+    });
+  });
 }

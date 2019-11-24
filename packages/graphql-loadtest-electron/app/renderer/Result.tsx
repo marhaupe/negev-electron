@@ -7,6 +7,32 @@ import { Link } from 'react-router-dom';
 export function Result() {
   const [stats] = useAppStatsContext();
 
+  if (stats.length === 0) {
+    return (
+      <div className="container h-full mx-auto py-10">
+        <Link className="block underline mb-3" to={'/'}>
+          Go back
+        </Link>
+        <p className="block text-3xl mb-10 font-bold">Result</p>
+        <p className="block text ">
+          Run a loadtest to see results. To run a loadtest, you simply have to configure at least one phase, an endpoint
+          and the query to test.
+        </p>
+        <div className="flex justify-center mt-16">
+          <img
+            style={{
+              maxWidth: '600px',
+              maxHeight: '430px',
+              width: 'auto',
+              height: 'auto'
+            }}
+            alt="data-visualisation"
+            src={require('../../assets/undraw_visual_data_b1wx.png')}
+          />
+        </div>
+      </div>
+    );
+  }
   const data = [
     {
       label: 'Duration (ms)',
