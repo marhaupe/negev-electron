@@ -3,21 +3,27 @@ import * as ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { Editor } from './Editor';
 import { Settings } from './Settings';
-import { AppContextProvider } from './context';
+import { AppConfigProvider, AppStatsProvider } from './context';
 import './index.css';
+import { Result } from './Result';
 
 ReactDOM.render(
-  <AppContextProvider>
-    <Router>
-      <Switch>
-        <Route path="/settings">
-          <Settings />
-        </Route>
-        <Route path="/">
-          <Editor />
-        </Route>
-      </Switch>
-    </Router>
-  </AppContextProvider>,
+  <AppConfigProvider>
+    <AppStatsProvider>
+      <Router>
+        <Switch>
+          <Route path="/result">
+            <Result />
+          </Route>
+          <Route path="/settings">
+            <Settings />
+          </Route>
+          <Route path="/">
+            <Editor />
+          </Route>
+        </Switch>
+      </Router>
+    </AppStatsProvider>
+  </AppConfigProvider>,
   document.getElementById('root')
 );

@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import { Config } from 'graphql-loadtest-core';
+import { Config, Stats } from 'graphql-loadtest-core';
 import { usePersistedState } from './__utils__';
 
-const defaultConfig: Config = {
+const defaultAppConfig: Config = {
   phases: [],
   fetchConfig: {
     headers: {},
@@ -13,20 +13,32 @@ const defaultConfig: Config = {
   }
 };
 
-type ContextType = [Config, (config: Config) => void];
+type AppConfigContextType = [Config, (config: Config) => void];
 
-const AppContext = React.createContext<ContextType>([defaultConfig, (config: Config) => {}]);
+const AppConfigContext = React.createContext<AppConfigContextType>([defaultAppConfig, (config: Config) => {}]);
 
-type Props = {
-  children: React.ReactNode;
-};
-
-export function useAppContext() {
-  return useContext(AppContext);
+export function useAppConfigContext() {
+  return useContext(AppConfigContext);
 }
 
-export function AppContextProvider({ children }: Props) {
-  const value = usePersistedState<Config>('appConfig', defaultConfig);
+export function AppConfigProvider({ children }: { children: React.ReactNode }) {
+  const value = usePersistedState<Config>('appConfig', defaultAppConfig);
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return <AppConfigContext.Provider value={value}>{children}</AppConfigContext.Provider>;
+}
+
+const defaultStats: Stats[] = [];
+
+type AppStatsContextType = [Stats[], (stats: Stats[]) => void];
+
+const AppStatsContext = React.createContext<AppStatsContextType>([defaultStats, (stats: Stats[]) => {}]);
+
+export function useAppStatsContext() {
+  return useContext(AppStatsContext);
+}
+
+export function AppStatsProvider({ children }: { children: React.ReactNode }) {
+  const value = usePersistedState<Stats[]>('appStats', defaultStats);
+
+  return <AppStatsContext.Provider value={value}>{children}</AppStatsContext.Provider>;
 }

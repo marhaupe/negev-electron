@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
 import 'graphiql/graphiql.css';
-import { Config } from 'graphql-loadtest-core';
-import { Link } from 'react-router-dom';
-import { useAppContext } from './context';
+import { Config, Stats } from 'graphql-loadtest-core';
+import { Link, useHistory } from 'react-router-dom';
+import { useAppConfigContext, useAppStatsContext } from './context';
 import './editor.css';
 const { ipcRenderer } = window.require('electron');
 
@@ -23,7 +23,7 @@ async function defaultFetcher(endpoint: string, graphQLParams: any) {
   }
 }
 
-async function loadtestFetcher(config: Config) {
+async function loadtestFetcher(config: Config): Promise<Stats[]> {
   return new Promise((resolve, _reject) => {
     ipcRenderer.send('request:loadtestFetcher', config);
     ipcRenderer.once('response:loadtestFetcher', (_event: any, arg: any) => {
@@ -34,13 +34,30 @@ async function loadtestFetcher(config: Config) {
 
 export function Editor() {
   const editorRef = useRef(null);
-  const [config, setConfig] = useAppContext();
+  const [config, setConfig] = useAppConfigContext();
+  const [stats, setStats] = useAppStatsContext();
+  const history = useHistory();
+
+  useEffect(() => {
+    const element = document.querySelector('.resultWrap');
+    if (element) {
+      element && element.parentNode && element.parentNode.removeChild(element);
+    }
+    return () => {
+      if (element) {
+        element && element.parentNode && element.parentNode.appendChild(element);
+      }
+    };
+  }, []);
 
   async function fetcher(graphQLParams: any) {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
       return defaultFetcher(config.fetchConfig.url, graphQLParams);
     }
-    return loadtestFetcher(config);
+    const result = await loadtestFetcher(config);
+    setStats(result);
+    history.push('/result');
+    return result;
   }
 
   function handleClickPrettifyButton() {
@@ -51,8 +68,6 @@ export function Editor() {
     editor.setValue(prettyText);
   }
 
-  // We want our context to be the global source of truth. This introduces redundant data,
-  // but this is fine
   function handleEditQuery(value: any) {
     const newConfig = { ...config };
     newConfig.fetchConfig.body.query = value;
@@ -94,6 +109,11 @@ export function Editor() {
           onChange={event => setConfig({ ...config, fetchConfig: { ...config.fetchConfig, url: event.target.value } })}
         />
         <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
+        {stats.length > 0 && (
+          <Link to={'/result'}>
+            <GraphiQL.Button label="Result" title="Open result page" />
+          </Link>
+        )}
         <Link to={'/settings'}>
           <GraphiQL.Button label="Settings" title="Open settings page" />
         </Link>

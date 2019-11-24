@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAppContext } from './context';
+import { useAppConfigContext } from './context';
 
 export function Settings() {
-  const [config, setConfig] = useAppContext();
+  const [config, setConfig] = useAppConfigContext();
 
   function renderHeadersConfig() {
     return (
@@ -160,7 +160,7 @@ export function Settings() {
   }
 
   return (
-    <div className="container h-full mx-auto py-10 relative">
+    <div className="container h-full mx-auto py-10">
       <Link className="block underline mb-3" to={'/'}>
         Go back
       </Link>
