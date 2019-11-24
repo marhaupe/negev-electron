@@ -1,0 +1,393 @@
+/*
+  Name:       material
+  Author:     Mattia Astorino (http://github.com/equinusocio)
+  Website:    https://material-theme.site/
+*/
+
+.cm-s-material-palenight.CodeMirror {
+  background-color: #292d3e;
+  color: #a6accd;
+}
+
+.cm-s-material-palenight .CodeMirror-gutters {
+  background: #292d3e;
+  color: #676e95;
+  border: none;
+}
+
+.cm-s-material-palenight .CodeMirror-guttermarker,
+.cm-s-material-palenight .CodeMirror-guttermarker-subtle,
+.cm-s-material-palenight .CodeMirror-linenumber {
+  color: #676e95;
+}
+
+.cm-s-material-palenight .CodeMirror-cursor {
+  border-left: 1px solid #ffcc00;
+}
+
+.cm-s-material-palenight div.CodeMirror-selected {
+  background: rgba(113, 124, 180, 0.2);
+}
+
+.cm-s-material-palenight.CodeMirror-focused div.CodeMirror-selected {
+  background: rgba(113, 124, 180, 0.2);
+}
+
+.cm-s-material-palenight .CodeMirror-line::selection,
+.cm-s-material-palenight .CodeMirror-line > span::selection,
+.cm-s-material-palenight .CodeMirror-line > span > span::selection {
+  background: rgba(128, 203, 196, 0.2);
+}
+
+.cm-s-material-palenight .CodeMirror-line::-moz-selection,
+.cm-s-material-palenight .CodeMirror-line > span::-moz-selection,
+.cm-s-material-palenight .CodeMirror-line > span > span::-moz-selection {
+  background: rgba(128, 203, 196, 0.2);
+}
+
+.cm-s-material-palenight .CodeMirror-activeline-background {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.cm-s-material-palenight .cm-keyword {
+  color: #c792ea;
+}
+
+.cm-s-material-palenight .cm-operator {
+  color: #89ddff;
+}
+
+.cm-s-material-palenight .cm-variable-2 {
+  color: #eeffff;
+}
+
+.cm-s-material-palenight .cm-variable-3,
+.cm-s-material-palenight .cm-type {
+  color: #f07178;
+}
+
+.cm-s-material-palenight .cm-builtin {
+  color: #ffcb6b;
+}
+
+.cm-s-material-palenight .cm-atom {
+  color: #f78c6c;
+}
+
+.cm-s-material-palenight .cm-number {
+  color: #ff5370;
+}
+
+.cm-s-material-palenight .cm-def {
+  color: #82aaff;
+}
+
+.cm-s-material-palenight .cm-string {
+  color: #c3e88d;
+}
+
+.cm-s-material-palenight .cm-string-2 {
+  color: #f07178;
+}
+
+.cm-s-material-palenight .cm-comment {
+  color: #676e95;
+}
+
+.cm-s-material-palenight .cm-variable {
+  color: #f07178;
+}
+
+.cm-s-material-palenight .cm-tag {
+  color: #ff5370;
+}
+
+.cm-s-material-palenight .cm-meta {
+  color: #ffcb6b;
+}
+
+.cm-s-material-palenight .cm-attribute {
+  color: #c792ea;
+}
+
+.cm-s-material-palenight .cm-property {
+  color: #c792ea;
+}
+
+.cm-s-material-palenight .cm-qualifier {
+  color: #decb6b;
+}
+
+.cm-s-material-palenight .cm-variable-3,
+.cm-s-material-palenight .cm-type {
+  color: #decb6b;
+}
+
+.cm-s-material-palenight .cm-error {
+  color: rgba(255, 255, 255, 1);
+  background-color: #ff5370;
+}
+
+.cm-s-material-palenight .CodeMirror-matchingbracket {
+  text-decoration: underline;
+  color: white !important;
+}
+
+/*
+  GraphiQL-specifics
+*/
+
+.graphiql-container .topBarWrap .topBar {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  background: #fafafa;
+  cursor: default;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  height: 40px;
+  overflow-y: visible;
+  padding: 30px !important;
+  /* padding: 8px 14px 8px !important; */
+  -webkit-user-select: none;
+}
+.graphiql-container .docExplorerShow,
+.graphiql-container .historyShow {
+  background: #fafafa;
+  border: none;
+  color: #424242;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0;
+  outline: 0;
+  padding: 12px;
+}
+.graphiql-container .docExplorerShow:before {
+  border-left: 2px solid #009688;
+  border-top: 2px solid #009688;
+  content: '';
+  display: inline-block;
+  height: 9px;
+  margin: 0 3px -1px 0;
+  position: relative;
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  width: 9px;
+}
+.graphiql-container .toolbar {
+  overflow-x: visible;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+.graphiql-container .toolbar-button {
+  background: #009688;
+  border: none;
+  padding: 10px 16px;
+  color: #fafafa;
+  cursor: pointer;
+  display: inline-block;
+  margin: 0 5px;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+  font-family: 'Roboto', sans-serif;
+  -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+.graphiql-container .toolbar-button:active {
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16), 0 1px 3px rgba(0, 0, 0, 0.23);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16), 0 1px 3px rgba(0, 0, 0, 0.23);
+}
+.graphiql-container .execute-button-wrap {
+  height: 34px;
+  margin: 0 14px 0 28px;
+  position: relative;
+}
+.graphiql-container .execute-button-wrap .execute-button {
+  background: #fafafa;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.graphiql-container .execute-button-wrap .execute-button:active,
+.graphiql-container .execute-button-wrap .execute-button:focus {
+  outline: none;
+}
+.graphiql-container .execute-button-wrap .execute-button svg {
+  pointer-events: none;
+}
+
+.graphiql-container .toolbar-button-group {
+  margin: 0 5px;
+  white-space: nowrap;
+}
+.graphiql-container .toolbar-button-group > * {
+  margin: 0;
+}
+.graphiql-container .toolbar-button-group > *:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.graphiql-container .toolbar-button-group {
+  > *:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px;
+  }
+}
+.graphiql-container .docExplorerWrap,
+.graphiql-container .historyPaneWrap {
+  background: vra(--white);
+  -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 3;
+}
+.graphiql-container .historyPaneWrap {
+  min-width: 230px;
+  z-index: 5;
+}
+.graphiql-container .docExplorerResizer {
+  cursor: col-resize;
+  height: 100%;
+  left: -5px;
+  position: absolute;
+  top: 0;
+  width: 10px;
+  z-index: 10;
+}
+.graphiql-container .docExplorerHide {
+  cursor: pointer;
+  font-size: 18px;
+  margin: -24px 0 0 10px;
+}
+.graphiql-container .editorBar {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+@media (max-width: 768px) {
+  .graphiql-container .editorBar {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+}
+.graphiql-container .editorBar .queryWrap {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+.graphiql-container .editorBar .resultWrap {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}
+.graphiql-container .editorBar .codemirrorWrap {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  height: 100%;
+  position: relative;
+}
+.graphiql-container .editorBar .result-window {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  height: 100%;
+  position: relative;
+}
+@media (max-width: 768px) {
+  .graphiql-container .editorBar .result-window {
+    border-top: 3px solid #232b2f;
+  }
+}
+.graphiql-container .editorBar .query-editor {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+}
+.graphiql-container .editorBar .variable-editor {
+  background: #232b2f;
+  padding: 10px;
+  padding-bottom: 0;
+  color: #009688;
+  padding-left: 20px;
+  font-size: 13px;
+  font-family: 'Roboto Mono', monospace;
+}
+.graphiql-container .editorBar .variable-editor .variable-editor-title {
+  padding-bottom: 10px;
+}
+.graphiql-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  width: 100%;
+  line-height: 1.5em;
+  color: #424242;
+}
+.graphiql-container .editorWrap {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  overflow-x: hidden;
+}
+.graphiql-container .title {
+  font-size: 18px;
+}
+.graphiql-container .title em {
+  font-family: georgia;
+  font-size: 19px;
+}

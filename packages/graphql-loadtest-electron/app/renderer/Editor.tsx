@@ -5,6 +5,7 @@ import 'graphiql/graphiql.css';
 import { Config } from 'graphql-loadtest-core';
 import { Link } from 'react-router-dom';
 import { useAppContext } from './context';
+import './editor.css';
 const { ipcRenderer } = window.require('electron');
 
 async function defaultFetcher(endpoint: string, graphQLParams: any) {
@@ -77,8 +78,11 @@ export function Editor() {
       onEditQuery={handleEditQuery}
       ref={editorRef}
       fetcher={fetcher}
+      editorTheme="material-palenight"
     >
-      <GraphiQL.Logo>graphql-loadtest</GraphiQL.Logo>
+      <GraphiQL.Logo>
+        <img src={require('../../build/icon.ico')} />
+      </GraphiQL.Logo>
       <GraphiQL.Toolbar>
         <input
           name="endpoint"
