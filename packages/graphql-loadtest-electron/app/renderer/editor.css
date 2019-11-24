@@ -107,7 +107,7 @@
 }
 
 .cm-s-material-palenight .cm-attribute {
-  color: #c792ea;
+  color: #763f9b;
 }
 
 .cm-s-material-palenight .cm-property {
@@ -171,8 +171,8 @@
   padding: 12px;
 }
 .graphiql-container .docExplorerShow:before {
-  border-left: 2px solid #009688;
-  border-top: 2px solid #009688;
+  border-left: 2px solid #763f9b;
+  border-top: 2px solid #763f9b;
   content: '';
   display: inline-block;
   height: 9px;
@@ -193,7 +193,7 @@
   flex-direction: row;
 }
 .graphiql-container .toolbar-button {
-  background: #009688;
+  background: #763f9b;
   border: none;
   padding: 10px 16px;
   color: #fafafa;
