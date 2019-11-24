@@ -1,3 +1,7 @@
+export type DecoratedResponse = {
+  duration: number;
+};
+
 export type Phase = {
   /**
    * Configures how many requests arrive per second.
@@ -49,6 +53,7 @@ export type FetchConfig = {
 
 export type Stats = {
   totalRequests: number;
+  responses: DecoratedResponse[];
   maxDurationPerRequest: number;
   minDurationPerRequest: number;
   averageDurationPerRequest: number;

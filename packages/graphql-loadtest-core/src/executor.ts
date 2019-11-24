@@ -1,5 +1,5 @@
 import { sleep } from './__utils__';
-import { Config, Stats, Phase, FetchConfig } from './types';
+import { Config, Stats, Phase, FetchConfig, DecoratedResponse } from './types';
 import {
   calculateJitter,
   calculateTotalDuration,
@@ -7,7 +7,7 @@ import {
   calculateMinDurationPerRequest,
   calculateMaxDurationPerRequest,
 } from './calculator';
-import { DecoratedResponse, fetchWithDecoration } from './fetcher';
+import { fetchWithDecoration } from './fetcher';
 
 export async function executeLoadtest(config: Config): Promise<Stats[]> {
   const validationResult = validateConfig(config);
@@ -34,6 +34,7 @@ export async function executeLoadtest(config: Config): Promise<Stats[]> {
 
     return {
       totalRequests,
+      responses,
       averageDurationPerRequest,
       maxDurationPerRequest,
       minDurationPerRequest,
