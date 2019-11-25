@@ -1,4 +1,4 @@
-import { DecoratedResponse } from './fetcher';
+import { DecoratedResponse } from './types';
 
 export function calculateJitter(
   maxDurationPerRequest: number,
