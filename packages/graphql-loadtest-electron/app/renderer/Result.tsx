@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 export function Result() {
   const [stats] = useAppStatsContext();
 
-  if (stats.length === 0) {
+  if (!stats || stats.length === 0) {
     return (
       <div className="container h-full mx-auto py-10">
         <Link className="block underline mb-3" to={'/'}>
