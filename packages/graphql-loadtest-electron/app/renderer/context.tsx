@@ -3,7 +3,13 @@ import { Config, Stats } from 'graphql-loadtest-core';
 import { usePersistedState } from './__utils__';
 
 const defaultAppConfig: Config = {
-  phases: [],
+  phases: [
+    {
+      pause: 0,
+      duration: 5,
+      arrivalRate: 10
+    }
+  ],
   fetchConfig: {
     headers: {},
     url: '',
