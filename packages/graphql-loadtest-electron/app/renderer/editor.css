@@ -191,15 +191,16 @@
   -webkit-box-direction: normal;
   -ms-flex-direction: row;
   flex-direction: row;
+  flex: 1;
 }
 .graphiql-container .toolbar-button {
   background: #763f9b;
   border: none;
-  padding: 10px 16px;
+  padding: 8 14;
   color: #fafafa;
   cursor: pointer;
   display: inline-block;
-  margin: 0 5px;
+  margin: 0 8px;
   text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;

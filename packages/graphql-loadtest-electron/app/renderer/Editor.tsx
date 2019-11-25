@@ -25,16 +25,16 @@ export function Editor() {
         <img alt="graphql-loadtest icon" src={require('../../build/icon.ico')} />
       </GraphiQL.Logo>
       <GraphiQL.Toolbar>
+        <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
         <input
           name="endpoint"
-          className="appearance-none bg-white rounded border focus:border-gray-600 border-gray-400 text-gray-700 mx-2 py-1 px-2 leading-tight focus:outline-none"
+          className="appearance-none bg-white flex-1 rounded border focus:border-gray-600 border-gray-400 text-gray-700 mx-2 px-3 focus:outline-none width-32"
           type="text"
           value={config.fetchConfig.url}
           aria-label="Endpoint"
           placeholder="Endpoint"
           onChange={event => setConfig({ ...config, fetchConfig: { ...config.fetchConfig, url: event.target.value } })}
         />
-        <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
         <Link to={'/result'}>
           <GraphiQL.Button label="Result" title="Open result page" />
         </Link>
