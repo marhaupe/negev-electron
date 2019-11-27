@@ -6,9 +6,9 @@ export function setupListeners() {
   ipcMain.on('request:loadtestFetcher', async (event: any, config: any) => {
     try {
       const res = await executeLoadtest(config);
-      event.reply('response:loadtestFetcher', res);
+      event.reply('response:loadtestFetcher', { resolved: res });
     } catch (error) {
-      event.reply('response:loadtestFetcher', { error });
+      event.reply('response:loadtestFetcher', { rejected: { error: error.toString() } });
     }
   });
 

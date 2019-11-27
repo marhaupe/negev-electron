@@ -51,11 +51,8 @@ export function Editor() {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
       return defaultFetcher(config.fetchConfig.url, graphQLParams);
     }
-    const [queryResult, loadTestResult] = await Promise.all([
-      defaultFetcher(config.fetchConfig.url, graphQLParams),
-      loadtestFetcher(config)
-    ]);
-
+    const loadTestResult = await loadtestFetcher(config);
+    const queryResult = await defaultFetcher(config.fetchConfig.url, graphQLParams);
     setStats(loadTestResult);
     return queryResult;
   }
@@ -99,15 +96,23 @@ async function defaultFetcher(endpoint: string, graphQLParams: any) {
     });
     return await response.json();
   } catch (error) {
-    return {};
+    const err = new Error('failed running introspection query on the provided url.');
+    err.stack = undefined;
+    throw err;
   }
 }
 
 async function loadtestFetcher(config: Config): Promise<Stats[]> {
-  return new Promise((resolve, _reject) => {
-    ipcRenderer.send('request:loadtestFetcher', config);
+  ipcRenderer.send('request:loadtestFetcher', config);
+  return new Promise((resolve, reject) => {
     ipcRenderer.once('response:loadtestFetcher', (_event: any, arg: any) => {
-      resolve(arg);
+      if (arg.resolved != null) {
+        resolve(arg.resolved);
+      } else if (arg.rejected != null) {
+        reject(arg.rejected);
+      } else {
+        reject('failed communicating with main process');
+      }
     });
   });
 }
