@@ -86,6 +86,12 @@ type ValidationResult = {
 };
 
 function validateConfig(config: Config): ValidationResult {
+  if (config.phases.length === 0) {
+    return {
+      isValid: false,
+      reason: 'cannot run loadtest without at least one phase.',
+    };
+  }
   for (const phase of config.phases) {
     if (phase.duration < 1) {
       return {
