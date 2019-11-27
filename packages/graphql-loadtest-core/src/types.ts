@@ -38,6 +38,7 @@ export type FetchConfig = {
   body: {
     query: string;
     variables?: any;
+    operationName?: string;
   };
 };
 

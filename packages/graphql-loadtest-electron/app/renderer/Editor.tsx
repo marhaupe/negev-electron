@@ -16,7 +16,11 @@ export function Editor() {
   return (
     <GraphiQL
       query={config && config.fetchConfig && config.fetchConfig.body.query}
+      variables={config && config.fetchConfig && config.fetchConfig.body && config.fetchConfig.body.variables}
+      operationName={config && config.fetchConfig && config.fetchConfig.body && config.fetchConfig.body.operationName}
       onEditQuery={handleEditQuery}
+      onEditVariables={handleEditVariables}
+      onEditOperationName={handleEditOperationName}
       ref={editorRef}
       fetcher={handleFetch}
       editorTheme="material-palenight"
@@ -63,6 +67,18 @@ export function Editor() {
     const { parse, print } = require('graphql');
     const prettyText = print(parse(currentText));
     editor.setValue(prettyText);
+  }
+
+  function handleEditOperationName(value: any) {
+    const newConfig = { ...config };
+    newConfig.fetchConfig.body.operationName = value;
+    setConfig(newConfig);
+  }
+
+  function handleEditVariables(value: any) {
+    const newConfig = { ...config };
+    newConfig.fetchConfig.body.variables = value;
+    setConfig(newConfig);
   }
 
   function handleEditQuery(value: any) {
