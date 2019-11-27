@@ -66,7 +66,7 @@ async function executePhase(phase: Phase, fetchConfig: FetchConfig): Promise<Dec
   }
 
   if (pause) {
-    await sleep(pause);
+    await sleep(pause * 1000);
   }
 
   const responses = await Promise.all(kickedOffRequests);

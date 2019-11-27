@@ -4,46 +4,36 @@ export type DecoratedResponse = {
 
 export type Phase = {
   /**
-   * Configures how many requests arrive per second.
+   * Sets how many requests are sent per second.
    */
   arrivalRate: number;
   /**
-   * Configures the duration of the phase in seconds.
+   * The duration of the phase in seconds.
    */
   duration: number;
 
   /**
-   * Configures the duration of the pause after the phase.
+   * The duration of the pause after the phase in seconds.
    */
   pause?: number;
-
-  /**
-   * TODO: This might be a nifty functionality
-   * Configures the amount of new requests that are being sent at the end of the phase. The number of requests
-   * increase linearly over the time of the phase.
-   */
-  // rampTo: number;
 };
 
 export type Config = {
-  /**
-   * Configures the phase.
-   */
   phases: Phase[];
   fetchConfig: FetchConfig;
 };
 
 export type FetchConfig = {
   /**
-   * Configures the url under test.
+   * The url under test.
    */
   url: string;
   /**
-   * Configures the headers being added to the requests.
+   * The headers being added to the requests.
    */
   headers?: { [key: string]: string };
   /**
-   * Configures the query / mutation being sent.
+   * The query / mutation being sent.
    */
   body: {
     query: string;
