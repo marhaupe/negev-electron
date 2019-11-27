@@ -12,16 +12,16 @@ import { fetchWithDecoration } from './fetcher';
 export async function executeLoadtest(config: Config): Promise<Stats[]> {
   const validationResult = validateConfig(config);
   if (!validationResult.isValid) {
-    throw 'config is not valid. ' + validationResult.reason;
+    throw new Error('config is not valid. ' + validationResult.reason);
   }
 
   const { phases, fetchConfig } = config;
 
-  const kickedOffRequestsPerPhase: Promise<DecoratedResponse[]>[] = phases.map(phase => {
-    return executePhase(phase, fetchConfig);
-  });
-
-  const responsesPerPhase = await Promise.all(kickedOffRequestsPerPhase);
+  const responsesPerPhase = await Promise.all(
+    phases.map(async phase => {
+      return await executePhase(phase, fetchConfig);
+    })
+  );
 
   return responsesPerPhase.map(responses => {
     const totalRequests = responses.length;
@@ -46,7 +46,7 @@ export async function executeLoadtest(config: Config): Promise<Stats[]> {
 async function executePhase(phase: Phase, fetchConfig: FetchConfig): Promise<DecoratedResponse[]> {
   // This is a store all requests that have been kicked off. The store allows
   // us to later await all pending requests.
-  const kickedOffRequests: Promise<DecoratedResponse>[] = [];
+  const kickedOffRequests: Promise<DecoratedResponse | Error>[] = [];
   const { arrivalRate, duration, pause } = phase;
 
   const phaseEndDate = Date.now() + duration * 1000;
@@ -57,7 +57,7 @@ async function executePhase(phase: Phase, fetchConfig: FetchConfig): Promise<Dec
     // in one second.
     const dateInOneSecond = Date.now() + 1000;
     for (let i = 0; i < arrivalRate && Date.now() < dateInOneSecond; i = i + 1) {
-      const kickedOffRequest = fetchWithDecoration(fetchConfig);
+      const kickedOffRequest = fetchWithDecoration(fetchConfig).catch(error => error);
       kickedOffRequests.push(kickedOffRequest);
     }
     // Once the requests have been kicked off, sleep the remaining fractions of a second.
@@ -68,7 +68,16 @@ async function executePhase(phase: Phase, fetchConfig: FetchConfig): Promise<Dec
   if (pause) {
     await sleep(pause);
   }
-  return Promise.all(kickedOffRequests);
+
+  const responses = await Promise.all(kickedOffRequests);
+
+  responses.forEach(request => {
+    if (request instanceof Error) {
+      throw request;
+    }
+  });
+
+  return responses as DecoratedResponse[];
 }
 
 type ValidationResult = {
@@ -81,13 +90,13 @@ function validateConfig(config: Config): ValidationResult {
     if (phase.duration < 1) {
       return {
         isValid: false,
-        reason: 'phases with a duration shorter than one second are currently not supported.',
+        reason: 'phases with a duration shorter than one second are not supported.',
       };
     }
-    if (phase.arrivalRate === 0) {
+    if (phase.arrivalRate < 1) {
       return {
         isValid: false,
-        reason: 'phases with an arrival rate set to zero are invalid.',
+        reason: 'phases with an arrival rate smaller than one are not supported.',
       };
     }
   }

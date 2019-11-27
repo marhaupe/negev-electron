@@ -18,7 +18,7 @@ export async function fetchWithDecoration({ url, headers, body }: FetchConfig): 
 
   const json = await response.json();
   if (json.errors && json.errors.length > 0) {
-    throw 'error fetching result: ' + JSON.stringify(json.errors[0]);
+    throw new Error('failed fetching result: ' + JSON.stringify(json.errors));
   }
 
   return {
