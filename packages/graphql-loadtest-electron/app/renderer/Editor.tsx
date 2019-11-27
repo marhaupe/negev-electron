@@ -6,6 +6,7 @@ import { Config, Stats } from 'graphql-loadtest-core';
 import { Link } from 'react-router-dom';
 import { useAppConfigContext, useAppStatsContext } from './context';
 import './editor.css';
+import Swal from 'sweetalert2';
 const { ipcRenderer } = window.require('electron');
 
 export function Editor() {
@@ -55,10 +56,30 @@ export function Editor() {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
       return defaultFetcher(config.fetchConfig.url, graphQLParams);
     }
-    const loadTestResult = await loadtestFetcher(config);
-    const queryResult = await defaultFetcher(config.fetchConfig.url, graphQLParams);
-    setStats(loadTestResult);
-    return queryResult;
+
+    if (config.phases.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Warning',
+        text: 'Please configure at least one phase before running a loadtest.',
+        footer: '<a href="/settings">Take me to the settings</a>'
+      });
+      return;
+    }
+
+    try {
+      const loadTestResult = await loadtestFetcher(config);
+      const queryResult = await defaultFetcher(config.fetchConfig.url, graphQLParams);
+      setStats(loadTestResult);
+      return queryResult;
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong while running the loadtest. Check the results pane for more information.'
+      });
+      throw error;
+    }
   }
 
   function handleClickPrettifyButton() {
