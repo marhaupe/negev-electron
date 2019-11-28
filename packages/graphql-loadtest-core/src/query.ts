@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
-import { FetchConfig, DecoratedResponse } from './types';
+import { FetchConfig, QueryResult } from './types';
 
-export async function fetchWithDecoration({ url, headers, body }: FetchConfig): Promise<DecoratedResponse> {
+export async function executeQuery({ url, headers, body }: FetchConfig): Promise<QueryResult> {
   const startDate = Date.now();
 
   const response = await fetch(url, {

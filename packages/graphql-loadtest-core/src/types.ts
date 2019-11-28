@@ -1,5 +1,6 @@
-export type DecoratedResponse = {
-  duration: number;
+export type Config = {
+  phases: Phase[];
+  fetchConfig: FetchConfig;
 };
 
 export type Phase = {
@@ -16,11 +17,6 @@ export type Phase = {
    * The duration of the pause after the phase in seconds.
    */
   pause?: number;
-};
-
-export type Config = {
-  phases: Phase[];
-  fetchConfig: FetchConfig;
 };
 
 export type FetchConfig = {
@@ -44,9 +40,13 @@ export type FetchConfig = {
 
 export type Stats = {
   totalRequests: number;
-  responses: DecoratedResponse[];
+  responses: QueryResult[];
   maxDurationPerRequest: number;
   minDurationPerRequest: number;
   averageDurationPerRequest: number;
   jitter: number;
+};
+
+export type QueryResult = {
+  duration: number;
 };

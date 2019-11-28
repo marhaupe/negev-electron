@@ -1,4 +1,4 @@
-import { DecoratedResponse } from './types';
+import { QueryResult } from './types';
 
 export function calculateJitter(
   maxDurationPerRequest: number,
@@ -10,11 +10,11 @@ export function calculateJitter(
   return roundDecimalPlaces((jitterBottom + jitterTop) / 2, 2);
 }
 
-export function calculateMinDurationPerRequest(responses: DecoratedResponse[]): number {
+export function calculateMinDurationPerRequest(responses: QueryResult[]): number {
   return Math.min(...responses.map(response => response.duration));
 }
 
-export function calculateMaxDurationPerRequest(responses: DecoratedResponse[]): number {
+export function calculateMaxDurationPerRequest(responses: QueryResult[]): number {
   return Math.max(...responses.map(response => response.duration));
 }
 
@@ -22,7 +22,7 @@ export function calculateAverageDurationPerRequest(combinedDuration: number, dur
   return roundDecimalPlaces(((combinedDuration / durationCount) * 100) / 100, 2);
 }
 
-export function calculateTotalDuration(responses: DecoratedResponse[]): number {
+export function calculateTotalDuration(responses: QueryResult[]): number {
   let combinedDuration = 0;
   responses.forEach(response => (combinedDuration += response.duration));
   return combinedDuration;

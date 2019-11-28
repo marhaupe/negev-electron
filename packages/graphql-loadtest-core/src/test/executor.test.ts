@@ -1,4 +1,4 @@
-import { executeLoadtest } from '../executor';
+import { executeLoadtest } from '../loadtest';
 
 describe('tests execute', () => {
   it('tests with a basic configuration', async () => {
