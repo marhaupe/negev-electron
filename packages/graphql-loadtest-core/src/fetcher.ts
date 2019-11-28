@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { FetchConfig, DecoratedResponse } from 'types';
+import { FetchConfig, DecoratedResponse } from './types';
 
 export async function fetchWithDecoration({ url, headers, body }: FetchConfig): Promise<DecoratedResponse> {
   const startDate = Date.now();
