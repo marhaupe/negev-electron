@@ -1,8 +1,10 @@
 {
   "name": "graphql-loadtest-core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
-  "author": "marhaupe",
+  "author": "marhaupe <marhaupe97@gmail.com>",
+  "homepage": "https://github.com/marhaupe/graphql-loadtest",
+  "description": "loadtest your graphql servers",
   "main": "dist/index.js",
   "module": "dist/graphql-loadtest-core.esm.js",
   "typings": "dist/index.d.ts",
@@ -13,7 +15,8 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "tsdx lint"
+    "lint": "tsdx lint",
+    "release": "yarn build && yarn test && yarn version --no-git-tag-version --new-version patch"
   },
   "peerDependencies": {},
   "husky": {

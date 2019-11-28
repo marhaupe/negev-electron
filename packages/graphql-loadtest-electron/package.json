@@ -1,9 +1,10 @@
 {
   "name": "graphql-loadtest-electron",
   "version": "0.0.1",
-  "author": "marhaupe",
+  "author": "marhaupe <marhaupe97@gmail.com>",
+  "homepage": "https://github.com/marhaupe/graphql-loadtest",
   "license": "MIT",
-  "description": "graphql-loadtest-electron",
+  "description": "loadtest your graphql servers",
   "main": "app/main/.parcel/main.js",
   "scripts": {
     "start": "run-s main:build watch",
@@ -70,8 +71,30 @@
     "typescript": "^3.5.2"
   },
   "build": {
-    "productName": "graphql-loadtest-electron",
-    "appId": "com.marhaupe.graphql-loadtest-electron",
+    "productName": "graphql-loadtest",
+    "appId": "com.marhaupe.graphql-loadtest",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "icon.icns"
+    },
+    "win": {
+      "icon": "icon.ico"
+    },
+    "linux": {
+      "category": "Development",
+      "target": [
+        "AppImage",
+        "snap",
+        "deb"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": false
+    },
     "files": [
       "app/**",
       "!app/main/main.ts",
@@ -80,25 +103,6 @@
       "app/renderer/.parcel/production/**",
       "!app/**/*.map"
     ],
-    "mac": {
-      "target": [
-        "zip"
-      ],
-      "artifactName": "${productName}-mac.${ext}"
-    },
-    "win": {
-      "target": [
-        "zip"
-      ],
-      "artifactName": "${productName}-win.${ext}"
-    },
-    "linux": {
-      "target": [
-        "zip"
-      ],
-      "category": "Development",
-      "artifactName": "${productName}-linux.${ext}"
-    },
     "directories": {
       "output": "release"
     }
