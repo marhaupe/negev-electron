@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
 import 'graphiql/graphiql.css';
-import { Config, Stats } from 'graphql-loadtest-core';
+import { Config } from 'graphql-loadtest-core';
 import { Link } from 'react-router-dom';
 import { useAppConfigContext, useAppStatsContext } from './context';
 import './editor.css';
@@ -68,9 +68,27 @@ export function Editor() {
     }
 
     try {
-      const loadTestResult = await loadtestFetcher(config);
+      async function loadTestFetcher(): Promise<void> {
+        ipcRenderer.send('request:loadtestFetcher', config);
+        return new Promise((resolve, reject) => {
+          ipcRenderer.on('response:loadtestFetcher', (_event: any, arg: any) => {
+            if (arg.data != null) {
+              setStats(JSON.parse(arg.data));
+            }
+            if (arg.end != null) {
+              resolve();
+            }
+            if (arg.close != null) {
+              resolve();
+            }
+            if (arg.error != null) {
+              reject(arg.error);
+            }
+          });
+        });
+      }
+      await loadTestFetcher();
       const queryResult = await defaultFetcher(config.fetchConfig.url, graphQLParams);
-      setStats(loadTestResult);
       return queryResult;
     } catch (error) {
       Swal.fire({
@@ -137,19 +155,4 @@ async function defaultFetcher(endpoint: string, graphQLParams: any) {
     err.stack = undefined;
     throw err;
   }
-}
-
-async function loadtestFetcher(config: Config): Promise<Stats[]> {
-  ipcRenderer.send('request:loadtestFetcher', config);
-  return new Promise((resolve, reject) => {
-    ipcRenderer.once('response:loadtestFetcher', (_event: any, arg: any) => {
-      if (arg.resolved != null) {
-        resolve(arg.resolved);
-      } else if (arg.rejected != null) {
-        reject(arg.rejected);
-      } else {
-        reject('failed communicating with main process');
-      }
-    });
-  });
 }

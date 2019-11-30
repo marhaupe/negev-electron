@@ -1,14 +1,17 @@
 import { ipcMain, dialog } from 'electron';
-import { executeLoadtest } from 'graphql-loadtest-core';
+import { getLoadtestStream } from 'graphql-loadtest-core';
 import fs from 'fs';
 
 export function setupListeners() {
   ipcMain.on('request:loadtestFetcher', async (event: any, config: any) => {
     try {
-      const res = await executeLoadtest(config);
-      event.reply('response:loadtestFetcher', { resolved: res });
+      const stream = getLoadtestStream(config);
+      stream.on('data', data => event.reply('response:loadtestFetcher', { data: data.toString() }));
+      stream.on('end', () => event.reply('response:loadtestFetcher', { end: true }));
+      stream.on('close', () => event.reply('response:loadtestFetcher', { close: true }));
+      stream.on('error', error => event.reply('response:loadtestFetcher', { error: { error: error.toString() } }));
     } catch (error) {
-      event.reply('response:loadtestFetcher', { rejected: { error: error.toString() } });
+      event.reply('response:loadtestFetcher', { error: { error: error.toString() } });
     }
   });
 
