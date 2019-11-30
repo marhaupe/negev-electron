@@ -1,2 +1,2 @@
-export { executeLoadtest } from './loadtest';
+export { executeLoadtest, getLoadtestStream } from './loadtest';
 export * from './types';

@@ -1,6 +1,6 @@
 {
   "name": "graphql-loadtest-core",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "license": "MIT",
   "author": "marhaupe <marhaupe97@gmail.com>",
   "homepage": "https://github.com/marhaupe/graphql-loadtest",
