@@ -22,7 +22,10 @@ export function getLoadtestStream(config: Config): Stream.Readable {
     read(_size) {},
   });
 
-  executeLoadtest(config, stream);
+  executeLoadtest(config, stream).catch(error => {
+    console.error(error);
+    stream.push(null);
+  });
 
   return stream;
 }
