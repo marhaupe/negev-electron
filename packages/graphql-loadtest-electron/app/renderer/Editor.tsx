@@ -68,28 +68,8 @@ export function Editor() {
     }
 
     try {
-      async function loadTestFetcher(): Promise<void> {
-        ipcRenderer.send('request:loadtestFetcher', config);
-        return new Promise((resolve, reject) => {
-          ipcRenderer.on('response:loadtestFetcher', (_event: any, arg: any) => {
-            if (arg.data != null) {
-              setStats(JSON.parse(arg.data));
-            }
-            if (arg.end != null) {
-              resolve();
-            }
-            if (arg.close != null) {
-              resolve();
-            }
-            if (arg.error != null) {
-              reject(arg.error);
-            }
-          });
-        });
-      }
-      await loadTestFetcher();
-      const queryResult = await defaultFetcher(config.fetchConfig.url, graphQLParams);
-      return queryResult;
+      await loadTestFetcher(config, setStats);
+      return await defaultFetcher(config.fetchConfig.url, graphQLParams);
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -155,4 +135,24 @@ async function defaultFetcher(endpoint: string, graphQLParams: any) {
     err.stack = undefined;
     throw err;
   }
+}
+
+async function loadTestFetcher(config: Config, onPartialData: (data: any) => any): Promise<void> {
+  ipcRenderer.send('request:loadtestFetcher', config);
+  return new Promise((resolve, reject) => {
+    ipcRenderer.on('response:loadtestFetcher', (_event: any, arg: any) => {
+      if (arg.data != null) {
+        onPartialData(JSON.parse(arg.data));
+      }
+      if (arg.end != null) {
+        resolve();
+      }
+      if (arg.close != null) {
+        resolve();
+      }
+      if (arg.error != null) {
+        reject(arg.error);
+      }
+    });
+  });
 }

@@ -41,17 +41,18 @@ export async function executeLoadtest(config: Config, stream?: Stream.Readable):
   const stats: Stats[] = [];
   for (const phase of phases) {
     // This is a store all requests that have been kicked off. The store allows
-    // us to later await all pending requests.
+    // us to later await all pending requests. This introduces redundant data
+    // because we also have a store for all resolved and rejected requests, but
+    // I didn't find an other solution.
     const phaseKickedOffRequests: Promise<QueryResult | Error>[] = [];
-    // While this introduces redundant data, this allows us to write the current
-    // stats to `stream` each time a single request has been resolved.
     const phaseResolvedRequests: QueryResult[] = [];
+    const phaseRejectedRequests: Error[] = [];
 
     const { arrivalRate, duration, pause } = phase;
 
     const phaseEndDate = Date.now() + duration * 1000;
 
-    while (Date.now() < phaseEndDate) {
+    while (Date.now() < phaseEndDate && phaseRejectedRequests.length === 0) {
       // We need to store the date in one second to allow us to break
       // out of the current iteration if the `arrivalRate` can't be reached
       // in one second.
@@ -66,25 +67,27 @@ export async function executeLoadtest(config: Config, stream?: Stream.Readable):
             stream && stream.push(stats);
             return response;
           })
-          .catch(error => error);
+          .catch(error => {
+            phaseRejectedRequests.push(error);
+            return error;
+          });
+
         phaseKickedOffRequests.push(kickedOffRequest);
       }
       // Once the requests have been kicked off, sleep the remaining fractions of a second.
       const remainingTime = dateInOneSecond - Date.now();
-      await sleep(remainingTime);
+      if (remainingTime > 0) {
+        await sleep(remainingTime);
+      }
     }
 
     if (pause) {
       await sleep(pause * 1000);
     }
 
-    const responses = await Promise.all(phaseKickedOffRequests);
+    await Promise.all(phaseKickedOffRequests);
 
-    responses.forEach(request => {
-      if (request instanceof Error) {
-        throw request;
-      }
-    });
+    if (phaseRejectedRequests.length > 0) throw phaseRejectedRequests[0];
   }
 
   stream && stream.push(null);
