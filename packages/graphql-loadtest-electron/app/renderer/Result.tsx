@@ -105,7 +105,7 @@ export function Result() {
       <div className="justify-center flex flex-row flex-wrap">
         {stats.map((stat, index) => {
           return (
-            <div className="m-8">
+            <div key={index} className="m-8">
               <p className="text-xl mb-2 font-bold">Phase {index}</p>
               <table className="table-auto">
                 <thead>
