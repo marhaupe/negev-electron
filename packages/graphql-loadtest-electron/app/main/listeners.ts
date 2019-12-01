@@ -6,7 +6,7 @@ export function setupListeners() {
   ipcMain.on('request:loadtestFetcher', async (event: any, config: any) => {
     try {
       const stream = getLoadtestStream(config);
-      stream.on('data', data => event.reply('response:loadtestFetcher', { data: data.toString() }));
+      stream.on('data', data => event.reply('response:loadtestFetcher', { data: JSON.stringify(data) }));
       stream.on('end', () => event.reply('response:loadtestFetcher', { end: true }));
       stream.on('close', () => event.reply('response:loadtestFetcher', { close: true }));
       stream.on('error', error => event.reply('response:loadtestFetcher', { error: { error: error.toString() } }));
