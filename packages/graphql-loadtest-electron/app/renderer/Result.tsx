@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppStatsContext } from './context';
-import { Chart } from 'react-charts';
+import ReactApexChart from 'react-apexcharts';
 import { Stats } from 'graphql-loadtest-core';
 import { Link } from 'react-router-dom';
 
@@ -33,17 +33,6 @@ export function Result() {
       </div>
     );
   }
-  const data = [
-    {
-      label: 'Duration (ms)',
-      data: generateData(stats)
-    }
-  ];
-
-  const axes = [
-    { primary: true, type: 'linear', position: 'bottom' },
-    { type: 'linear', position: 'left' }
-  ];
 
   return (
     <div className="container h-full mx-auto py-10">
@@ -60,14 +49,53 @@ export function Result() {
 
   function renderChart() {
     return (
-      <div
-        style={{
-          margin: 'auto',
-          width: '800px',
-          height: '400px'
-        }}
-      >
-        <Chart data={data} primaryCursor secondaryCursor axes={axes} />
+      <div id="chart">
+        <ReactApexChart
+          options={{
+            chart: {
+              id: 'realtime',
+              animations: {
+                enabled: true,
+                easing: 'linear',
+                dynamicAnimation: {
+                  speed: 1000
+                }
+              },
+              toolbar: {
+                show: false
+              },
+              zoom: {
+                enabled: true
+              }
+            },
+            dataLabels: {
+              enabled: false
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            markers: {
+              size: 0
+            },
+            xaxis: {
+              type: 'numeric'
+            },
+            yaxis: {
+              max: 500
+            },
+            legend: {
+              show: true
+            }
+          }}
+          series={[
+            {
+              name: 'Response time',
+              data: generateData(stats)
+            }
+          ]}
+          type="line"
+          height="350"
+        />
       </div>
     );
   }
@@ -120,6 +148,6 @@ export function Result() {
 function generateData(stats: Stats[]) {
   const durations = stats.flatMap(stat => stat.responses);
   return durations.map((duration, index) => {
-    return [index, duration.duration];
+    return { x: index, y: duration.duration };
   });
 }
