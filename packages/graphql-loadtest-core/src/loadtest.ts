@@ -19,11 +19,12 @@ import {
  */
 export function getLoadtestStream(config: Config): Stream.Readable {
   const stream = new Stream.Readable({
+    objectMode: true,
     read(_size) {},
   });
 
   executeLoadtest(config, stream).catch(error => {
-    console.error(error);
+    stream.emit('error', error);
     stream.push(null);
   });
 
@@ -62,7 +63,7 @@ export async function executeLoadtest(config: Config, stream?: Stream.Readable):
             const updatedStats = collectStats(phaseResolvedRequests);
             stats.pop();
             stats.push(updatedStats);
-            stream && stream.push(JSON.stringify(stats));
+            stream && stream.push(stats);
             return response;
           })
           .catch(error => error);

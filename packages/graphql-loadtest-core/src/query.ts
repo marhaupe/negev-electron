@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { FetchConfig, QueryResult } from './types';
 
 export async function executeQuery({ url, headers, body }: FetchConfig): Promise<QueryResult> {
