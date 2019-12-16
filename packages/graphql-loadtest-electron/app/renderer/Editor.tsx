@@ -67,17 +67,24 @@ export function Editor() {
       return;
     }
 
+    let response: any;
+    try {
+      response = await defaultFetcher(config.fetchConfig.url, graphQLParams);
+    } catch (error) {
+      throw error;
+    }
+
     try {
       await loadTestFetcher(config, setStats);
-      return await defaultFetcher(config.fetchConfig.url, graphQLParams);
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Something went wrong while running the loadtest. Check the results pane for more information.'
+        text: 'Something went wrong while running the loadtest.',
+        footer: `<code>${JSON.stringify(error)}</code>`
       });
-      throw error;
     }
+    return response;
   }
 
   function handleClickPrettifyButton() {
