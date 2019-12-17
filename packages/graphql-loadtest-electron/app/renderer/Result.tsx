@@ -1,53 +1,58 @@
 import React from 'react';
-import { useAppStatsContext } from './context';
 import ReactApexChart from 'react-apexcharts';
 import { Stats } from 'graphql-loadtest-core';
 import { Link } from 'react-router-dom';
+import { useStore } from './store';
+import { useObserver } from 'mobx-react';
 
+let renderCount = 0;
 export function Result() {
-  const [stats] = useAppStatsContext();
+  const store = useStore();
 
-  if (!stats || stats.length === 0) {
+  return useObserver(() => {
+    if (!store.stats || store.stats.length === 0) {
+      return (
+        <div className="container h-full mx-auto py-10">
+          <Link className="block underline mb-3" to={'/'}>
+            Go back
+          </Link>
+          <p className="block text-3xl mb-10 font-bold">Result</p>
+          <p className="block text ">
+            Run a loadtest to see results. To run a loadtest, you simply have to configure at least one phase, an
+            endpoint and the query to test.
+          </p>
+          <div className="flex justify-center mt-16">
+            <img
+              style={{
+                maxWidth: '600px',
+                maxHeight: '430px',
+                width: 'auto',
+                height: 'auto'
+              }}
+              alt="data-visualisation"
+              src={require('../../assets/undraw_visual_data_b1wx.png')}
+            />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="container h-full mx-auto py-10">
         <Link className="block underline mb-3" to={'/'}>
           Go back
         </Link>
         <p className="block text-3xl mb-10 font-bold">Result</p>
-        <p className="block text ">
-          Run a loadtest to see results. To run a loadtest, you simply have to configure at least one phase, an endpoint
-          and the query to test.
-        </p>
-        <div className="flex justify-center mt-16">
-          <img
-            style={{
-              maxWidth: '600px',
-              maxHeight: '430px',
-              width: 'auto',
-              height: 'auto'
-            }}
-            alt="data-visualisation"
-            src={require('../../assets/undraw_visual_data_b1wx.png')}
-          />
-        </div>
+        {renderChart()}
+        <br />
+        <br />
+        {renderDetailedStats()}
       </div>
     );
-  }
-
-  return (
-    <div className="container h-full mx-auto py-10">
-      <Link className="block underline mb-3" to={'/'}>
-        Go back
-      </Link>
-      <p className="block text-3xl mb-10 font-bold">Result</p>
-      {renderChart()}
-      <br />
-      <br />
-      {renderDetailedStats()}
-    </div>
-  );
+  });
 
   function renderChart() {
+    console.log('rendering chart', ++renderCount);
     return (
       <div id="chart">
         <ReactApexChart
@@ -80,9 +85,9 @@ export function Result() {
             xaxis: {
               type: 'numeric'
             },
-            yaxis: {
-              max: 500
-            },
+            // yaxis: {
+            //   max: 500
+            // },
             legend: {
               show: true
             }
@@ -90,7 +95,7 @@ export function Result() {
           series={[
             {
               name: 'Response time',
-              data: generateData(stats)
+              data: generateData(store.stats)
             }
           ]}
           type="line"
@@ -103,7 +108,7 @@ export function Result() {
   function renderDetailedStats() {
     return (
       <div className="justify-center flex flex-row flex-wrap">
-        {stats.map((stat, index) => {
+        {store.stats.map((stat, index) => {
           return (
             <div key={index} className="m-8">
               <p className="text-xl mb-2 font-bold">Phase {index}</p>

@@ -4,21 +4,22 @@ import fetch from 'isomorphic-fetch';
 import 'graphiql/graphiql.css';
 import { Config } from 'graphql-loadtest-core';
 import { Link } from 'react-router-dom';
-import { useAppConfigContext, useAppStatsContext } from './context';
 import './editor.css';
 import Swal from 'sweetalert2';
+import { useStore, AppStore } from './store';
+import { useObserver } from 'mobx-react';
+import { toJS } from 'mobx';
 const { ipcRenderer } = window.require('electron');
 
 export function Editor() {
   const editorRef = useRef(null);
-  const [config, setConfig] = useAppConfigContext();
-  const [stats, setStats] = useAppStatsContext();
+  const store = useStore();
 
-  return (
+  return useObserver(() => (
     <GraphiQL
-      query={config && config.fetchConfig && config.fetchConfig.body.query}
-      variables={config && config.fetchConfig && config.fetchConfig.body && config.fetchConfig.body.variables}
-      operationName={config && config.fetchConfig && config.fetchConfig.body && config.fetchConfig.body.operationName}
+      query={store.fetchConfig.body.query}
+      variables={store.fetchConfig.body.variables}
+      operationName={store.fetchConfig.body.operationName}
       onEditQuery={handleEditQuery}
       onEditVariables={handleEditVariables}
       onEditOperationName={handleEditOperationName}
@@ -35,10 +36,10 @@ export function Editor() {
           name="endpoint"
           className="appearance-none bg-white flex-1 rounded border focus:border-gray-600 border-gray-400 text-gray-700 mx-2 px-3 focus:outline-none width-32"
           type="text"
-          value={config.fetchConfig.url}
+          value={store.fetchConfig.url}
           aria-label="Endpoint"
           placeholder="Endpoint"
-          onChange={event => setConfig({ ...config, fetchConfig: { ...config.fetchConfig, url: event.target.value } })}
+          onChange={event => store.setUrl(event.target.value)}
         />
         <Link to={'/result'}>
           <GraphiQL.Button label="Result" title="Open result page" />
@@ -50,14 +51,14 @@ export function Editor() {
         <GraphiQL.Button onClick={handleClickImportButton} label="Import" title="Import config" />
       </GraphiQL.Toolbar>
     </GraphiQL>
-  );
+  ));
 
   async function handleFetch(graphQLParams: any) {
     if (graphQLParams.operationName === 'IntrospectionQuery') {
-      return defaultFetcher(config.fetchConfig.url, graphQLParams);
+      return defaultFetcher(store.fetchConfig.url, graphQLParams);
     }
 
-    if (config.phases.length === 0) {
+    if (store.phases.length === 0) {
       Swal.fire({
         icon: 'warning',
         title: 'Warning',
@@ -69,13 +70,13 @@ export function Editor() {
 
     let response: any;
     try {
-      response = await defaultFetcher(config.fetchConfig.url, graphQLParams);
+      response = await defaultFetcher(store.fetchConfig.url, graphQLParams);
     } catch (error) {
       throw error;
     }
 
     try {
-      await loadTestFetcher(config, setStats);
+      await loadTestFetcher(store);
     } catch (error) {
       Swal.fire({
         icon: 'error',
@@ -96,32 +97,27 @@ export function Editor() {
   }
 
   function handleEditOperationName(value: any) {
-    const newConfig = { ...config };
-    newConfig.fetchConfig.body.operationName = value;
-    setConfig(newConfig);
+    store.setBody({ ...store.fetchConfig.body, operationName: value });
   }
 
   function handleEditVariables(value: any) {
-    const newConfig = { ...config };
-    newConfig.fetchConfig.body.variables = value;
-    setConfig(newConfig);
+    store.setBody({ ...store.fetchConfig.body, variables: value });
   }
 
   function handleEditQuery(value: any) {
-    const newConfig = { ...config };
-    newConfig.fetchConfig.body.query = value;
-    setConfig(newConfig);
+    store.setBody({ ...store.fetchConfig.body, query: value });
   }
 
   function handleClickExportButton() {
-    ipcRenderer.send('request:saveConfig', config);
+    ipcRenderer.send('request:saveConfig', { fetchConfig: store.fetchConfig, phases: store.phases });
   }
 
   function handleClickImportButton() {
     ipcRenderer.send('request:loadConfig');
     ipcRenderer.once('response:loadConfig', (_event: any, config: Config) => {
       if (config) {
-        setConfig(config);
+        store.setPhases(config.phases);
+        store.setFetchConfig(config.fetchConfig);
       }
     });
   }
@@ -144,12 +140,12 @@ async function defaultFetcher(endpoint: string, graphQLParams: any) {
   }
 }
 
-async function loadTestFetcher(config: Config, onPartialData: (data: any) => any): Promise<void> {
-  ipcRenderer.send('request:loadtestFetcher', config);
+async function loadTestFetcher(store: AppStore): Promise<void> {
+  ipcRenderer.send('request:loadtestFetcher', { fetchConfig: toJS(store.fetchConfig), phases: toJS(store.phases) });
   return new Promise((resolve, reject) => {
     ipcRenderer.on('response:loadtestFetcher', (_event: any, arg: any) => {
       if (arg.data != null) {
-        onPartialData(JSON.parse(arg.data));
+        store.setStats(JSON.parse(arg.data));
       }
       if (arg.end != null) {
         resolve();
