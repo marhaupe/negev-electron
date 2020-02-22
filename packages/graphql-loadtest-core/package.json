@@ -1,6 +1,6 @@
 {
-  "name": "graphql-loadtest-core",
-  "version": "0.0.1",
+  "name": "graphql-loadtest",
+  "version": "0.0.1-alpha.0",
   "license": "MIT",
   "author": "marhaupe <marhaupe97@gmail.com>",
   "homepage": "https://github.com/marhaupe/graphql-loadtest",
@@ -16,7 +16,7 @@
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
-    "release": "yarn build && yarn test && yarn version --no-git-tag-version --new-version patch"
+    "release": "yarn build && yarn test && yarn publish"
   },
   "peerDependencies": {},
   "husky": {
