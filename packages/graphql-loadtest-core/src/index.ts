@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-export { executeLoadtest, getLoadtestStream } from './loadtest';
+export { executeLoadtest, executeStreamingLoadtest } from './loadtest';
 export * from './types';
 
 // make `fetch` globally accessible for easier mocking

@@ -17,7 +17,7 @@ import {
  * is being updated and written to the stream. This enables realtime display of the data collected by
  * the loadtest.
  */
-export function getLoadtestStream(config: Config): Stream.Readable {
+export function executeStreamingLoadtest(config: Config): Stream.Readable {
   const stream = new Stream.Readable({
     objectMode: true,
     read(_size) {},

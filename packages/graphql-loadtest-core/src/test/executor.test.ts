@@ -1,4 +1,4 @@
-import { executeLoadtest, getLoadtestStream } from '../loadtest';
+import { executeLoadtest, executeStreamingLoadtest } from '../loadtest';
 import fetchMock from 'fetch-mock';
 
 describe('tests stream execute', () => {
@@ -19,7 +19,7 @@ describe('tests stream execute', () => {
         url: 'http://example.com/qry',
       },
     };
-    const stream = getLoadtestStream(config);
+    const stream = executeStreamingLoadtest(config);
     stream.on('error', error => {
       expect(error).toBeDefined();
       done();
@@ -39,7 +39,7 @@ describe('tests stream execute', () => {
         url: 'http://example.com/query',
       },
     };
-    const stream = getLoadtestStream(config);
+    const stream = executeStreamingLoadtest(config);
     stream.on('error', error => {
       expect(error).toBeDefined();
       done();
