@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { useStore } from './store';
 import { useObserver } from 'mobx-react';
 
-let renderCount = 0;
 export function Result() {
   const store = useStore();
 
@@ -43,111 +42,114 @@ export function Result() {
           Go back
         </Link>
         <p className="block text-3xl mb-10 font-bold">Result</p>
-        {renderChart()}
-        <br />
-        <br />
-        {renderDetailedStats()}
+        <Chart stats={store.stats} />
+        <div className="mb-10" />
+        <DetailedStats stats={store.stats} />
       </div>
     );
   });
+}
 
-  function renderChart() {
-    console.log('rendering chart', ++renderCount);
-    return (
-      <div id="chart">
-        <ReactApexChart
-          options={{
-            chart: {
-              id: 'realtime',
-              animations: {
-                enabled: true,
-                easing: 'linear',
-                dynamicAnimation: {
-                  speed: 1000
-                }
-              },
-              toolbar: {
-                show: false
-              },
-              zoom: {
-                enabled: true
+type ChartProps = {
+  stats: Stats[];
+};
+
+const Chart = React.memo((props: ChartProps) => {
+  return (
+    <div id="chart">
+      <ReactApexChart
+        options={{
+          chart: {
+            id: 'realtime',
+            animations: {
+              enabled: true,
+              easing: 'linear',
+              dynamicAnimation: {
+                speed: 1000
               }
             },
-            dataLabels: {
-              enabled: false
+            toolbar: {
+              show: false
             },
-            stroke: {
-              curve: 'smooth'
-            },
-            markers: {
-              size: 0
-            },
-            xaxis: {
-              type: 'numeric'
-            },
-            // yaxis: {
-            //   max: 500
-            // },
-            legend: {
-              show: true
+            zoom: {
+              enabled: true
             }
-          }}
-          series={[
-            {
-              name: 'Response time',
-              data: generateData(store.stats)
-            }
-          ]}
-          type="line"
-          height="350"
-        />
-      </div>
-    );
-  }
+          },
+          dataLabels: {
+            enabled: false
+          },
+          stroke: {
+            curve: 'smooth'
+          },
+          markers: {
+            size: 0
+          },
+          xaxis: {
+            type: 'numeric'
+          },
+          legend: {
+            show: true
+          }
+        }}
+        series={[
+          {
+            name: 'Response time',
+            data: generateData(props.stats)
+          }
+        ]}
+        type="line"
+        height="350"
+      />
+    </div>
+  );
+});
 
-  function renderDetailedStats() {
-    return (
-      <div className="justify-center flex flex-row flex-wrap">
-        {store.stats.map((stat, index) => {
-          return (
-            <div key={index} className="m-8">
-              <p className="text-xl mb-2 font-bold">Phase {index}</p>
-              <table className="table-auto">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-2">Metric</th>
-                    <th className="px-4 py-2">Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border px-4 py-2">Average</td>
-                    <td className="border px-4 py-2">{stat.averageDurationPerRequest} ms</td>
-                  </tr>
-                  <tr className="bg-gray-100">
-                    <td className="border px-4 py-2">Min</td>
-                    <td className="border px-4 py-2">{stat.minDurationPerRequest} ms</td>
-                  </tr>
-                  <tr>
-                    <td className="border px-4 py-2">Max</td>
-                    <td className="border px-4 py-2">{stat.maxDurationPerRequest} ms</td>
-                  </tr>
-                  <tr className="bg-gray-100">
-                    <td className="border px-4 py-2">Jitter</td>
-                    <td className="border px-4 py-2">{stat.jitter} ms</td>
-                  </tr>
-                  <tr>
-                    <td className="border px-4 py-2">Total requests</td>
-                    <td className="border px-4 py-2">{stat.totalRequests}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
+type StatsProps = {
+  stats: Stats[];
+};
+
+function DetailedStats(props: StatsProps) {
+  return (
+    <div className="justify-center flex flex-row flex-wrap">
+      {props.stats.map((stat, index) => {
+        return (
+          <div key={index} className="m-8">
+            <p className="text-xl mb-2 font-bold">Phase {index}</p>
+            <table className="table-auto">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">Metric</th>
+                  <th className="px-4 py-2">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border px-4 py-2">Average</td>
+                  <td className="border px-4 py-2">{stat.averageDurationPerRequest} ms</td>
+                </tr>
+                <tr className="bg-gray-100">
+                  <td className="border px-4 py-2">Min</td>
+                  <td className="border px-4 py-2">{stat.minDurationPerRequest} ms</td>
+                </tr>
+                <tr>
+                  <td className="border px-4 py-2">Max</td>
+                  <td className="border px-4 py-2">{stat.maxDurationPerRequest} ms</td>
+                </tr>
+                <tr className="bg-gray-100">
+                  <td className="border px-4 py-2">Jitter</td>
+                  <td className="border px-4 py-2">{stat.jitter} ms</td>
+                </tr>
+                <tr>
+                  <td className="border px-4 py-2">Total requests</td>
+                  <td className="border px-4 py-2">{stat.totalRequests}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function generateData(stats: Stats[]) {

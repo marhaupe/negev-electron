@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { useStore, AppStore } from './store';
 import { useObserver } from 'mobx-react';
 import { toJS } from 'mobx';
+import { throttle } from 'lodash';
 const { ipcRenderer } = window.require('electron');
 
 export function Editor() {
@@ -143,19 +144,22 @@ async function defaultFetcher(endpoint: string, graphQLParams: any) {
 async function loadTestFetcher(store: AppStore): Promise<void> {
   ipcRenderer.send('request:loadtestFetcher', { fetchConfig: toJS(store.fetchConfig), phases: toJS(store.phases) });
   return new Promise((resolve, reject) => {
-    ipcRenderer.on('response:loadtestFetcher', (_event: any, arg: any) => {
-      if (arg.data != null) {
-        store.setStats(JSON.parse(arg.data));
-      }
-      if (arg.end != null) {
-        resolve();
-      }
-      if (arg.close != null) {
-        resolve();
-      }
-      if (arg.error != null) {
-        reject(arg.error);
-      }
-    });
+    ipcRenderer.on(
+      'response:loadtestFetcher',
+      throttle((_event: any, arg: any) => {
+        if (arg.data != null) {
+          store.setStats(JSON.parse(arg.data));
+        }
+        if (arg.end != null) {
+          resolve();
+        }
+        if (arg.close != null) {
+          resolve();
+        }
+        if (arg.error != null) {
+          reject(arg.error);
+        }
+      }, 50)
+    );
   });
 }
