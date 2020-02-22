@@ -12,7 +12,7 @@
     "release": "run-s parcel:build \"electron:build {@}\" --",
     "watch": "run-p -r parcel:watch electron:start",
     "electron:start": "nodemon --watch app/main/.parcel --exec \"electron .\"",
-    "electron:build": "build --x64 --publish=never",
+    "electron:build": "electron-builder --x64 --publish=never",
     "parcel:watch": "run-p -r main:watch renderer:watch",
     "main:watch": "parcel watch app/main/main.ts --out-dir app/main/.parcel --out-file main --target electron",
     "renderer:watch": "parcel app/renderer/index.html --port 1124 --out-dir app/renderer/.parcel/development",
@@ -55,8 +55,8 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "10.x",
     "babel-jest": "^24.8.0",
-    "electron": "^5.0.5",
-    "electron-builder": "^20.44.4",
+    "electron": "5.0.5",
+    "electron-builder": "21.1.2",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.5.0",
     "eslint-config-react-app": "^5.0.2",
@@ -79,6 +79,10 @@
     "appId": "com.marhaupe.graphql-loadtest",
     "mac": {
       "category": "public.app-category.developer-tools",
+      "target": [
+        "dmg"
+      ],
+      "identity": null,
       "icon": "icon.icns"
     },
     "win": {
