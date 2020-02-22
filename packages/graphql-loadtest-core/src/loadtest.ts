@@ -39,7 +39,7 @@ export async function executeLoadtest(config: Config, stream?: Stream.Readable):
 
   const { phases, fetchConfig } = config;
   const stats: Stats[] = [];
-  for (const phase of phases) {
+  for (const [phaseIndex, phase] of phases.entries()) {
     // This is a store all requests that have been kicked off. The store allows
     // us to later await all pending requests. This introduces redundant data
     // because we also have a store for all resolved and rejected requests, but
@@ -62,8 +62,7 @@ export async function executeLoadtest(config: Config, stream?: Stream.Readable):
           .then(response => {
             phaseResolvedRequests.push(response);
             const updatedStats = collectStats(phaseResolvedRequests);
-            stats.pop();
-            stats.push(updatedStats);
+            stats[phaseIndex] = updatedStats;
             stream && stream.push(stats);
             return response;
           })
