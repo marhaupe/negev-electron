@@ -4,6 +4,8 @@ import { resolve } from 'app-root-path';
 import { setupListeners } from './listeners';
 import isDev from 'electron-is-dev';
 
+import installExtension, { REACT_DEVELOPER_TOOLS, MOBX_DEVTOOLS } from 'electron-devtools-installer';
+
 app.on('ready', async () => {
   const webPreferences = isDev
     ? {
@@ -26,6 +28,13 @@ app.on('ready', async () => {
     if (isDev) {
       mainWindow.webContents.openDevTools();
     }
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then(name => console.log(`Added Extension:  ${name}`))
+      .catch(err => console.log('An error occurred: ', err));
+
+    installExtension(MOBX_DEVTOOLS)
+      .then(name => console.log(`Added Extension:  ${name}`))
+      .catch(err => console.log('An error occurred: ', err));
   });
 
   const devPath = 'http://localhost:1124';
