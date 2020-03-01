@@ -6,7 +6,7 @@
   "homepage": "https://github.com/marhaupe/graphql-loadtest",
   "description": "loadtest your graphql servers",
   "main": "dist/index.js",
-  "module": "dist/graphql-loadtest-core.esm.js",
+  "module": "dist/graphql-loadtest.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
-import { Stats } from 'graphql-loadtest-core';
+import { Stats } from 'graphql-loadtest';
 import { Link } from 'react-router-dom';
 import { useStore } from './store';
 import { useObserver } from 'mobx-react';

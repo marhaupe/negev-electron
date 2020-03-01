@@ -1,5 +1,5 @@
 import { ipcMain, dialog } from 'electron';
-import { executeStreamingLoadtest } from 'graphql-loadtest-core';
+import { executeStreamingLoadtest } from 'graphql-loadtest';
 import fs from 'fs';
 
 export function setupListeners() {

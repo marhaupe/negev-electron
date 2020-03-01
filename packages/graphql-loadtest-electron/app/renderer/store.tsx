@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { observable } from 'mobx';
 import { useLocalStore } from 'mobx-react';
 import { AsyncTrunk } from 'mobx-sync';
-import { FetchConfig, Stats, Phase } from 'graphql-loadtest-core';
+import { FetchConfig, Stats, Phase } from 'graphql-loadtest';
 
 export class AppStore {
   @observable phases: Phase[] = [

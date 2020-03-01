@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import GraphiQL from 'graphiql';
 import fetch from 'isomorphic-fetch';
 import 'graphiql/graphiql.css';
-import { Config } from 'graphql-loadtest-core';
+import { Config } from 'graphql-loadtest';
 import { Link } from 'react-router-dom';
 import './editor.css';
 import Swal from 'sweetalert2';
@@ -29,7 +29,7 @@ export function Editor() {
       editorTheme="material-palenight"
     >
       <GraphiQL.Logo>
-        <img alt="graphql-loadtest icon" src={require('../../build/icon.ico')} />
+        <img alt="graphql-loadtest icon" src={require('../../build/icons/32x32.png')} />
       </GraphiQL.Logo>
       <GraphiQL.Toolbar>
         <GraphiQL.Button onClick={handleClickPrettifyButton} label="Prettify" title="Prettify Query (Shift-Ctrl-P)" />
