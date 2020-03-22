@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { observable } from 'mobx';
-import { useLocalStore } from 'mobx-react';
-import { AsyncTrunk } from 'mobx-sync';
-import { FetchConfig, Stats, Phase } from 'graphql-loadtest';
+import React from "react";
+import { observable } from "mobx";
+import { useLocalStore } from "mobx-react";
+import { FetchConfig, Stats, Phase } from "graphql-loadtest";
 
 export class AppStore {
   @observable phases: Phase[] = [
@@ -31,9 +30,9 @@ export class AppStore {
 
   @observable fetchConfig: FetchConfig = {
     headers: {},
-    url: '',
+    url: "",
     body: {
-      query: '',
+      query: "",
       variables: undefined,
       operationName: undefined
     }
@@ -71,19 +70,16 @@ const storeContext = React.createContext<AppStore | null>(null);
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const store = useLocalStore(createStore);
 
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    new AsyncTrunk(store, { storage: localStorage }).init().then(() => setLoading(false));
-  }, []); //eslint-disable-line
-
-  return <storeContext.Provider value={store}>{loading ? null : children}</storeContext.Provider>;
+  return (
+    <storeContext.Provider value={store}>{children}</storeContext.Provider>
+  );
 }
 
 export const useStore = () => {
   const store = React.useContext(storeContext);
   if (!store) {
     // this is especially useful in TypeScript so you don't need to be checking for null all the time
-    throw new Error('useStore must be used within a StoreProvider.');
+    throw new Error("useStore must be used within a StoreProvider.");
   }
   return store;
 };

@@ -1,9 +1,9 @@
-import React from 'react';
-import ReactApexChart from 'react-apexcharts';
-import { Stats } from 'graphql-loadtest';
-import { Link } from 'react-router-dom';
-import { useStore } from './store';
-import { useObserver } from 'mobx-react';
+import React from "react";
+import ReactApexChart from "react-apexcharts";
+import { Stats } from "graphql-loadtest";
+import { Link } from "react-router-dom";
+import { useStore } from "../mobx/store";
+import { useObserver } from "mobx-react";
 
 export function Result() {
   const store = useStore();
@@ -12,24 +12,24 @@ export function Result() {
     if (!store.stats || store.stats.length === 0) {
       return (
         <div className="container h-full mx-auto py-10">
-          <Link className="block underline mb-3" to={'/'}>
+          <Link className="block underline mb-3" to={"/"}>
             Go back
           </Link>
           <p className="block text-3xl mb-10 font-bold">Result</p>
           <p className="block text ">
-            Run a loadtest to see results. To run a loadtest, you simply have to configure at least one phase, an
-            endpoint and the query to test.
+            Run a loadtest to see results. To run a loadtest, you simply have to
+            configure at least one phase, an endpoint and the query to test.
           </p>
           <div className="flex justify-center mt-16">
             <img
               style={{
-                maxWidth: '600px',
-                maxHeight: '430px',
-                width: 'auto',
-                height: 'auto'
+                maxWidth: "600px",
+                maxHeight: "430px",
+                width: "auto",
+                height: "auto"
               }}
               alt="data-visualisation"
-              src={require('../../assets/undraw_visual_data_b1wx.png')}
+              src={"/undraw_visual_data_b1wx.png"}
             />
           </div>
         </div>
@@ -38,7 +38,7 @@ export function Result() {
 
     return (
       <div className="container h-full mx-auto py-10">
-        <Link className="block underline mb-3" to={'/'}>
+        <Link className="block underline mb-3" to={"/"}>
           Go back
         </Link>
         <p className="block text-3xl mb-10 font-bold">Result</p>
@@ -60,10 +60,10 @@ const Chart = React.memo((props: ChartProps) => {
       <ReactApexChart
         options={{
           chart: {
-            id: 'realtime',
+            id: "realtime",
             animations: {
               enabled: true,
-              easing: 'linear',
+              easing: "linear",
               dynamicAnimation: {
                 speed: 1000
               }
@@ -79,13 +79,13 @@ const Chart = React.memo((props: ChartProps) => {
             enabled: false
           },
           stroke: {
-            curve: 'smooth'
+            curve: "smooth"
           },
           markers: {
             size: 0
           },
           xaxis: {
-            type: 'numeric'
+            type: "numeric"
           },
           legend: {
             show: true
@@ -93,7 +93,7 @@ const Chart = React.memo((props: ChartProps) => {
         }}
         series={[
           {
-            name: 'Response time',
+            name: "Response time",
             data: generateData(props.stats)
           }
         ]}
@@ -125,15 +125,21 @@ function DetailedStats(props: StatsProps) {
               <tbody>
                 <tr>
                   <td className="border px-4 py-2">Average</td>
-                  <td className="border px-4 py-2">{stat.averageDurationPerRequest} ms</td>
+                  <td className="border px-4 py-2">
+                    {stat.averageDurationPerRequest} ms
+                  </td>
                 </tr>
                 <tr className="bg-gray-100">
                   <td className="border px-4 py-2">Min</td>
-                  <td className="border px-4 py-2">{stat.minDurationPerRequest} ms</td>
+                  <td className="border px-4 py-2">
+                    {stat.minDurationPerRequest} ms
+                  </td>
                 </tr>
                 <tr>
                   <td className="border px-4 py-2">Max</td>
-                  <td className="border px-4 py-2">{stat.maxDurationPerRequest} ms</td>
+                  <td className="border px-4 py-2">
+                    {stat.maxDurationPerRequest} ms
+                  </td>
                 </tr>
                 <tr className="bg-gray-100">
                   <td className="border px-4 py-2">Jitter</td>

@@ -1,14 +1,14 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useStore } from './store';
-import { useObserver } from 'mobx-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useStore } from "../mobx/store";
+import { useObserver } from "mobx-react";
 
 export function Settings() {
   const store = useStore();
 
   return useObserver(() => (
     <div className="container h-full mx-auto py-10">
-      <Link className="block underline mb-3" to={'/'}>
+      <Link className="block underline mb-3" to={"/"}>
         Go back
       </Link>
       <p className="block text-3xl mb-6 font-bold">Settings</p>
@@ -20,12 +20,20 @@ export function Settings() {
   function renderPhasesConfig() {
     return (
       <div className="border-t-2 border-gray-400 py-8">
-        <button className="underline" onClick={() => store.addPhase({ arrivalRate: 1, duration: 1, pause: 0 })}>
+        <button
+          className="underline"
+          onClick={() =>
+            store.addPhase({ arrivalRate: 1, duration: 1, pause: 0 })
+          }
+        >
           Add phase
         </button>
         {store.phases.map((phase, index) => {
           return (
-            <div key={index} className="my-8 p-6 container mx-auto border rounded-lg shadow-md">
+            <div
+              key={index}
+              className="my-8 p-6 container mx-auto border rounded-lg shadow-md"
+            >
               <div className="relative">
                 <p className="text-xl font-bold mb-4">Phase {index}</p>
                 <button
@@ -56,8 +64,8 @@ export function Settings() {
                   className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
                   name="duration"
                   value={phase.duration}
-                  placeholder={'Duration (in seconds)'}
-                  type={'number'}
+                  placeholder={"Duration (in seconds)"}
+                  type={"number"}
                   onChange={event => {
                     store.phases[index].duration = parseInt(event.target.value);
                   }}
@@ -69,10 +77,12 @@ export function Settings() {
                   className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
                   name="arrivalRate"
                   value={phase.arrivalRate}
-                  placeholder={'Arrival Rate (per second)'}
-                  type={'number'}
+                  placeholder={"Arrival Rate (per second)"}
+                  type={"number"}
                   onChange={event => {
-                    store.phases[index].arrivalRate = parseInt(event.target.value);
+                    store.phases[index].arrivalRate = parseInt(
+                      event.target.value
+                    );
                   }}
                 />
               </div>
@@ -82,8 +92,8 @@ export function Settings() {
                   className="bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
                   name="pause"
                   value={phase.pause}
-                  placeholder={'Pause (in milliseconds)'}
-                  type={'number'}
+                  placeholder={"Pause (in milliseconds)"}
+                  type={"number"}
                   onChange={event => {
                     store.phases[index].pause = parseInt(event.target.value);
                   }}
@@ -103,7 +113,7 @@ export function Settings() {
           className="underline"
           onClick={() => {
             if (store.fetchConfig.headers) {
-              store.fetchConfig.headers[''] = '';
+              store.fetchConfig.headers[""] = "";
             }
           }}
         >
@@ -126,7 +136,9 @@ export function Settings() {
                         // in `onChange`, does not work, because this creates a new component that doesn't have focus.
                         const newKey = event.target.value;
                         const oldKey = header;
-                        (store as any).fetchConfig.headers[newKey] = (store as any).fetchConfig.headers[oldKey];
+                        (store as any).fetchConfig.headers[
+                          newKey
+                        ] = (store as any).fetchConfig.headers[oldKey];
                         delete (store as any).fetchConfig.headers[oldKey];
                       }}
                     />
@@ -136,7 +148,8 @@ export function Settings() {
                       placeholder="Value"
                       type="text"
                       onChange={event => {
-                        (store as any).fetchConfig.headers[header] = event.target.value;
+                        (store as any).fetchConfig.headers[header] =
+                          event.target.value;
                       }}
                     />
                     <button
