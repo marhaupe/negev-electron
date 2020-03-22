@@ -4,7 +4,7 @@ import fetch from "unfetch";
 import "graphiql/graphiql.css";
 import { Config } from "graphql-loadtest";
 import { Link } from "react-router-dom";
-import "./editor.css";
+// import "./editor.css";
 import Swal from "sweetalert2";
 import { useStore, AppStore } from "../mobx/store";
 import { useObserver } from "mobx-react";
@@ -120,7 +120,7 @@ export function Editor() {
 
     let response: any;
     try {
-      response = await defaultFetcher(store.fetchConfig.url, store);
+      response = await defaultFetcher(store.fetchConfig.url, graphQLParams);
     } catch (error) {
       throw error;
     }
