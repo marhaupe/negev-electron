@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import GraphiQL from "graphiql";
 import fetch from "unfetch";
 import "graphiql/graphiql.css";
@@ -16,8 +16,15 @@ export function Editor() {
   const editorRef = useRef(null);
   const store = useStore();
 
+  // This makes sure that the <GraphiQL>-Component gets recreated as soon as
+  // a valid url is typed. We need this workaround until the issue gets fixed
+  // https://github.com/graphql/graphiql/issues/223. GraphiQL@1.0.0 probably will
+  // make this easier.
+  const [key, setKey] = useState("");
+
   return useObserver(() => (
     <GraphiQL
+      key={key}
       query={store.fetchConfig.body.query}
       variables={store.fetchConfig.body.variables}
       operationName={store.fetchConfig.body.operationName}
@@ -75,15 +82,24 @@ export function Editor() {
   }
 
   function handleEditOperationName(value: any) {
-    store.setBody({ ...store.fetchConfig.body, operationName: value });
+    store.setBody({
+      ...store.fetchConfig.body,
+      operationName: value
+    });
   }
 
   function handleEditVariables(value: any) {
-    store.setBody({ ...store.fetchConfig.body, variables: value });
+    store.setBody({
+      ...store.fetchConfig.body,
+      variables: value
+    });
   }
 
   function handleEditQuery(value: any) {
-    store.setBody({ ...store.fetchConfig.body, query: value });
+    store.setBody({
+      ...store.fetchConfig.body,
+      query: value
+    });
   }
 
   function handleClickExportButton() {
@@ -105,7 +121,14 @@ export function Editor() {
 
   async function handleFetch(graphQLParams: any) {
     if (graphQLParams.operationName === "IntrospectionQuery") {
-      return defaultFetcher(store.fetchConfig.url, graphQLParams);
+      return defaultFetcher(store.fetchConfig.url, graphQLParams)
+        .then(data => {
+          setKey(store.fetchConfig.url);
+          return data;
+        })
+        .catch(() => ({
+          message: "Could not fetch schema"
+        }));
     }
 
     if (store.phases.length === 0) {
@@ -118,12 +141,7 @@ export function Editor() {
       return;
     }
 
-    let response: any;
-    try {
-      response = await defaultFetcher(store.fetchConfig.url, graphQLParams);
-    } catch (error) {
-      throw error;
-    }
+    let response = await defaultFetcher(store.fetchConfig.url, graphQLParams);
 
     try {
       await loadTestFetcher(store);
