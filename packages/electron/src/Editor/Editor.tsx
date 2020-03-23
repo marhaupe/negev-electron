@@ -5,7 +5,6 @@ import "graphiql/graphiql.css";
 import { Config } from "graphql-loadtest";
 import { Link } from "react-router-dom";
 // import "./editor.css";
-import Swal from "sweetalert2";
 import { useStore, AppStore } from "../mobx/store";
 import { useObserver } from "mobx-react";
 import { toJS } from "mobx";
@@ -132,27 +131,13 @@ export function Editor() {
     }
 
     if (store.phases.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Please configure at least one phase before running a loadtest.",
-        footer: '<a href="/settings">Take me to the settings</a>'
-      });
-      return;
+      return {
+        message: "Cannot run loadtest. Please configure at least one phase."
+      };
     }
 
     let response = await defaultFetcher(store.fetchConfig.url, graphQLParams);
-
-    try {
-      await loadTestFetcher(store);
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Something went wrong while running the loadtest.",
-        footer: `<code>${JSON.stringify(error)}</code>`
-      });
-    }
+    await loadTestFetcher(store);
     return response;
   }
 }
