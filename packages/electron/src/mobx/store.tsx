@@ -1,16 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { observable } from "mobx";
 import { useLocalStore } from "mobx-react";
+import { create, persist } from "mobx-persist";
 import { FetchConfig, Stats, Phase } from "graphql-loadtest";
 
+const hydrate = create({
+  storage: window.localStorage,
+  jsonify: true
+});
+
 export class AppStore {
-  @observable phases: Phase[] = [
+  @persist("list") @observable phases: Phase[] = [
     {
       pause: 0,
       duration: 5,
       arrivalRate: 50
     }
   ];
+
+  @persist("object") @observable fetchConfig: FetchConfig = {
+    headers: {},
+    url: "",
+    body: {
+      query: "",
+      variables: undefined,
+      operationName: undefined
+    }
+  };
+
+  @persist("list") @observable stats: Stats[] = [];
 
   setPhases(phases: Phase[]) {
     this.phases = phases;
@@ -28,16 +46,6 @@ export class AppStore {
     this.phases[index] = newPhase;
   }
 
-  @observable fetchConfig: FetchConfig = {
-    headers: {},
-    url: "",
-    body: {
-      query: "",
-      variables: undefined,
-      operationName: undefined
-    }
-  };
-
   setFetchConfig(fetchConfig: FetchConfig) {
     this.fetchConfig = fetchConfig;
   }
@@ -54,8 +62,6 @@ export class AppStore {
     this.fetchConfig.body = body;
   }
 
-  @observable stats: Stats[] = [];
-
   setStats(stats: Stats[]) {
     this.stats = stats;
   }
@@ -69,9 +75,16 @@ const storeContext = React.createContext<AppStore | null>(null);
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const store = useLocalStore(createStore);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    hydrate("mobx-persist", store).then(() => setLoading(false));
+  }, [store]);
 
   return (
-    <storeContext.Provider value={store}>{children}</storeContext.Provider>
+    <storeContext.Provider value={store}>
+      {loading ? null : children}
+    </storeContext.Provider>
   );
 }
 
