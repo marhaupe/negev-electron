@@ -1,7 +1,7 @@
 import { FetchConfig, QueryResult } from './types';
 
 export async function executeQuery({ url, headers, body }: FetchConfig): Promise<QueryResult> {
-  const startDate = Date.now();
+  const startHrTime = process.hrtime();
 
   const response = await fetch(url, {
     method: 'post',
@@ -12,8 +12,7 @@ export async function executeQuery({ url, headers, body }: FetchConfig): Promise
     body: JSON.stringify(body),
   });
 
-  const endDate = Date.now();
-  const duration = endDate - startDate;
+  const durationHrTime = process.hrtime(startHrTime);
 
   const json = await response.json();
   if (json.errors && json.errors.length > 0) {
@@ -21,6 +20,12 @@ export async function executeQuery({ url, headers, body }: FetchConfig): Promise
   }
 
   return {
-    duration,
+    duration: durationHrTimeToMs(durationHrTime),
   };
+}
+
+type HighResolutionTime = [number, number];
+
+function durationHrTimeToMs(hrtime: HighResolutionTime) {
+  return hrtime[0] * 1e6 + hrtime[1] / 1e6;
 }
