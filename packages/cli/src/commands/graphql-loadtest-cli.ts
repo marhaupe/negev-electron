@@ -8,7 +8,8 @@ let headers: { [key: string]: string } | undefined
 
 async function validateQuery(query: string): Promise<true | string> {
   // Removes non-breaking spaces such as \u00A0
-  query = query.replace(/\s/g, '')
+  query = query.replace(/\s+/g, ' ')
+  query = query.replace(/\s/g, ' ')
 
   const response = await fetch(endpoint, {
     method: 'POST',
