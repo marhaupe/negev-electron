@@ -33,8 +33,9 @@
   "devDependencies": {
     "@types/fetch-mock": "^7.3.2",
     "@types/jest": "^24.0.22",
-    "@types/node-fetch": "^2.5.4",
+    "@types/node-fetch": "^2.5.5",
     "@types/sinon": "^7.5.0",
+    "@types/verror": "^1.10.3",
     "fetch-mock": "^8.0.0",
     "husky": "^3.0.9",
     "tsdx": "^0.11.0",
@@ -42,6 +43,9 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "valvelet": "^1.1.1",
+    "verror": "^1.10.0",
+    "worker-farm": "^1.7.0"
   }
 }

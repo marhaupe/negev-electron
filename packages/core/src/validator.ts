@@ -6,25 +6,47 @@ type ValidationResult = {
 };
 
 export function validateConfig(config: Config): ValidationResult {
-  if (config.phases.length === 0) {
+  if (config.duration && !numberIsValid(config.duration)) {
     return {
       isValid: false,
-      reason: 'cannot run loadtest without at least one phase.',
+      reason: 'config validation failed: duration is invalid',
     };
   }
-  for (const phase of config.phases) {
-    if (phase.duration < 1) {
-      return {
-        isValid: false,
-        reason: 'phases with a duration shorter than one second are not supported.',
-      };
-    }
-    if (phase.arrivalRate < 1) {
-      return {
-        isValid: false,
-        reason: 'phases with an arrival rate smaller than one are not supported.',
-      };
-    }
+  if (config.numberRequests && !numberIsValid(config.numberRequests)) {
+    return {
+      isValid: false,
+      reason: 'config validation failed: numberRequests is invalid',
+    };
   }
-  return { isValid: true };
+  if (config.rateLimit && !numberIsValid(config.rateLimit)) {
+    return {
+      isValid: false,
+      reason: 'config validation failed: rateLimit is invalid',
+    };
+  }
+  if (config.numberWorkers && !numberIsValid(config.numberWorkers)) {
+    return {
+      isValid: false,
+      reason: 'config validation failed: numberWorkers is invalid',
+    };
+  }
+  if (config.rateLimit && config.numberWorkers && config.rateLimit < config.numberWorkers) {
+    return {
+      isValid: false,
+      reason: 'config validatin failed: rateLimit must not be smaller than numberWorkers',
+    };
+  }
+  return {
+    isValid: true,
+  };
+}
+
+function numberIsValid(num: number) {
+  if (!Number.isInteger(num)) {
+    return false;
+  }
+  if (num < 0) {
+    return false;
+  }
+  return true;
 }

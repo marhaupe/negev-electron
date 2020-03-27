@@ -1,8 +1,6 @@
 import { Config, Stats, QueryResult } from './types';
 import { validateConfig } from './validator';
 import Stream from 'stream';
-import { executeQuery } from './query';
-import { sleep } from './__utils__';
 import {
   calculateTotalDuration,
   calculateAverageDurationPerRequest,
@@ -10,6 +8,9 @@ import {
   calculateMaxDurationPerRequest,
   calculateJitter,
 } from './calculator';
+import { VError } from 'verror';
+import { Request } from 'node-fetch';
+import workerFarm from 'worker-farm';
 
 /**
  *
@@ -31,66 +32,55 @@ export function executeStreamingLoadtest(config: Config): Stream.Readable {
   return stream;
 }
 
-export async function executeLoadtest(config: Config, stream?: Stream.Readable): Promise<Stats[]> {
-  const validationResult = validateConfig(config);
+export async function executeLoadtest(config: Config, _stream?: Stream.Readable): Promise<Stats> {
+  const { endpoint, query, duration, rateLimit, numberRequests = 200, headers = {}, numberWorkers = 10 } = config;
+  const validationResult = validateConfig({
+    endpoint,
+    query,
+    duration,
+    rateLimit,
+    numberRequests,
+    headers,
+    numberWorkers,
+  });
   if (!validationResult.isValid) {
-    throw new Error('config is not valid. ' + validationResult.reason);
+    throw new VError(validationResult.reason);
   }
 
-  const { phases, fetchConfig } = config;
-  const stats: Stats[] = [];
-  for (const [phaseIndex, phase] of phases.entries()) {
-    // This is a store all requests that have been kicked off. The store allows
-    // us to later await all pending requests. This introduces redundant data
-    // because we also have a store for all resolved and rejected requests, but
-    // I didn't find an other solution.
-    const phaseKickedOffRequests: Promise<QueryResult | Error>[] = [];
-    const phaseResolvedRequests: QueryResult[] = [];
-    const phaseRejectedRequests: Error[] = [];
+  const request = new Request(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    body: JSON.stringify(query),
+  });
 
-    const { arrivalRate, duration, pause } = phase;
-
-    const phaseEndDate = Date.now() + duration * 1000;
-
-    while (Date.now() < phaseEndDate && phaseRejectedRequests.length === 0) {
-      // We need to store the date in one second to allow us to break
-      // out of the current iteration if the `arrivalRate` can't be reached
-      // in one second.
-      const dateInOneSecond = Date.now() + 1000;
-      for (let i = 0; i < arrivalRate && Date.now() < dateInOneSecond; i++) {
-        const kickedOffRequest = executeQuery(fetchConfig)
-          .then(response => {
-            phaseResolvedRequests.push(response);
-            const updatedStats = collectStats(phaseResolvedRequests);
-            stats[phaseIndex] = updatedStats;
-            stream && stream.push(stats);
-            return response;
-          })
-          .catch(error => {
-            phaseRejectedRequests.push(error);
-            return error;
-          });
-
-        phaseKickedOffRequests.push(kickedOffRequest);
-      }
-      // Once the requests have been kicked off, sleep the remaining fractions of a second.
-      const remainingTime = dateInOneSecond - Date.now();
-      if (remainingTime > 0) {
-        await sleep(remainingTime);
-      }
-    }
-
-    if (pause) {
-      await sleep(pause * 1000);
-    }
-
-    await Promise.all(phaseKickedOffRequests);
-
-    if (phaseRejectedRequests.length > 0) throw phaseRejectedRequests[0];
+  if (duration) {
+    throw new VError('not implemented. please leave duration to undefined.');
   }
 
-  stream && stream.push(null);
-  return stats;
+  const executeRequestsInWorker = workerFarm(require.resolve('./requester'));
+  const results: Promise<QueryResult | Error>[] = [];
+  for (let i = 0; i < numberWorkers; i++) {
+    executeRequestsInWorker(
+      {
+        request,
+        numberRequests: Math.round(numberRequests / numberWorkers),
+        rateLimit,
+      },
+      function(_err: Error | null, result: Promise<QueryResult | Error>[]) {
+        results.push(...result);
+      }
+    );
+  }
+  const resolvedResults = await Promise.all(results);
+
+  return collectStats(resolvedResults.filter(result => !isError(result)) as QueryResult[]);
+}
+
+function isError(e: any): boolean {
+  return e && e.stack && e.message && typeof e.stack === 'string' && typeof e.message === 'string';
 }
 
 function collectStats(responses: QueryResult[]): Stats {
@@ -103,7 +93,6 @@ function collectStats(responses: QueryResult[]): Stats {
   const jitter = calculateJitter(maxDurationPerRequest, minDurationPerRequest, averageDurationPerRequest);
 
   return {
-    totalRequests,
     responses,
     averageDurationPerRequest,
     maxDurationPerRequest,
