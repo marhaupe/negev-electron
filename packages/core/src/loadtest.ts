@@ -83,8 +83,8 @@ async function executeRequests(
   // If no rate limit is set, do all the work in one chunk.
   // If a limit is set, split the work equally in chunks,
   // After each iteration, we have to check if 1s has elapsed
-  // since starting the work on the current chunk. If this
-  // is the case and a limit is set, sleep the remaining fraction of a second.
+  // since starting the work on the current chunk and sleep the remaining
+  // fraction of a second if we have to.
   const chunks = getChunks(numberRequests, rateLimit);
   for (let i = 0; i < chunks.length; i++) {
     const numberRequestsForCurrentChunk = chunks[i];
@@ -92,7 +92,8 @@ async function executeRequests(
     for (let j = 0; j < numberRequestsForCurrentChunk; j++) {
       pendingRequests.push(executeQuery(request));
       const timeElapsed = end();
-      if (rateLimit && timeElapsed < 1000) {
+      const isLastChunk = i === chunks.length - 1;
+      if (rateLimit && timeElapsed < 1000 && !isLastChunk) {
         await sleep(1000 - timeElapsed);
       }
     }
