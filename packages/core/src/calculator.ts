@@ -30,5 +30,13 @@ export function calculateTotalDuration(responses: QueryResult[]): number {
 
 function roundDecimalPlaces(num: number, count: number) {
   const x = Math.pow(10, count);
-  return Math.round(num * x) / x;
+  return Math.round((num + Number.EPSILON) * x) / x;
+}
+
+export function calculateSum(args: number[]) {
+  return args.reduce((accumulator, current) => accumulator + current);
+}
+
+export function calculateAverage(args: number[]) {
+  return roundDecimalPlaces(calculateSum(args) / args.length, 2);
 }

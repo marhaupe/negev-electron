@@ -8,9 +8,9 @@ import {
   calculateMaxDurationPerRequest,
   calculateJitter,
 } from './calculator';
-import { VError } from 'verror';
 import { Request } from 'node-fetch';
-import workerFarm from 'worker-farm';
+import { executeQuery } from './query';
+import { isError } from './__utils__';
 
 /**
  *
@@ -33,7 +33,7 @@ export function executeStreamingLoadtest(config: Config): Stream.Readable {
 }
 
 export async function executeLoadtest(config: Config, _stream?: Stream.Readable): Promise<Stats> {
-  const { endpoint, query, duration, rateLimit, numberRequests = 200, headers = {}, numberWorkers = 10 } = config;
+  const { endpoint, query, duration, rateLimit, numberRequests = 200, headers = {} } = config;
   const validationResult = validateConfig({
     endpoint,
     query,
@@ -41,10 +41,9 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
     rateLimit,
     numberRequests,
     headers,
-    numberWorkers,
   });
   if (!validationResult.isValid) {
-    throw new VError(validationResult.reason);
+    throw new Error(validationResult.reason);
   }
 
   const request = new Request(endpoint, {
@@ -57,40 +56,18 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
   });
 
   if (duration) {
-    throw new VError('not implemented. please leave duration to undefined.');
+    throw new Error('not implemented. please leave duration to undefined.');
   }
 
-  const executeRequestsInWorker = workerFarm(require.resolve('./requester'));
-  const workerPromises: Promise<Promise<QueryResult | Error>[]>[] = [];
-  for (let i = 0; i < numberWorkers; i++) {
-    workerPromises.push(
-      new Promise((resolve, reject) => {
-        executeRequestsInWorker(
-          {
-            request,
-            numberRequests: Math.round(numberRequests / numberWorkers),
-            rateLimit,
-          },
-          function(err: Error | null, result: Promise<QueryResult | Error>[]) {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(result);
-            }
-          }
-        );
-      })
-    );
+  const pendingRequests: Promise<QueryResult | Error>[] = [];
+
+  for (let i = 0; i < numberRequests; i++) {
+    pendingRequests.push(executeQuery(request));
   }
-  const kickedOffPromises = await Promise.all(workerPromises);
-  const flattenedKickedOffPromises = kickedOffPromises.flat(1);
-  const resolvedPromises = await Promise.all(flattenedKickedOffPromises);
+
+  const resolvedPromises = await Promise.all(pendingRequests);
 
   return collectStats(resolvedPromises.filter(result => !isError(result)) as QueryResult[]);
-}
-
-function isError(e: any): boolean {
-  return e && e.stack && e.message && typeof e.stack === 'string' && typeof e.message === 'string';
 }
 
 function collectStats(responses: QueryResult[]): Stats {
@@ -103,7 +80,7 @@ function collectStats(responses: QueryResult[]): Stats {
   const jitter = calculateJitter(maxDurationPerRequest, minDurationPerRequest, averageDurationPerRequest);
 
   return {
-    responses,
+    totalRequests,
     averageDurationPerRequest,
     maxDurationPerRequest,
     minDurationPerRequest,

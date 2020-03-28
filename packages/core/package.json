@@ -45,7 +45,6 @@
   "dependencies": {
     "node-fetch": "^2.6.0",
     "valvelet": "^1.1.1",
-    "verror": "^1.10.0",
-    "worker-farm": "^1.7.0"
+    "verror": "^1.10.0"
   }
 }

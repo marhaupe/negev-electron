@@ -4,16 +4,15 @@ export type Config = {
   headers?: Record<string, string>;
   duration?: number;
   numberRequests?: number;
-  numberWorkers?: number;
   rateLimit?: number;
 };
 
 export type Stats = {
-  responses: QueryResult[];
   maxDurationPerRequest: number;
   minDurationPerRequest: number;
   averageDurationPerRequest: number;
   jitter: number;
+  totalRequests: number;
 };
 
 export type QueryResult = {

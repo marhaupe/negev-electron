@@ -24,18 +24,6 @@ export function validateConfig(config: Config): ValidationResult {
       reason: 'config validation failed: rateLimit is invalid',
     };
   }
-  if (config.numberWorkers && !numberIsValid(config.numberWorkers)) {
-    return {
-      isValid: false,
-      reason: 'config validation failed: numberWorkers is invalid',
-    };
-  }
-  if (config.rateLimit && config.numberWorkers && config.rateLimit < config.numberWorkers) {
-    return {
-      isValid: false,
-      reason: 'config validatin failed: rateLimit must not be smaller than numberWorkers',
-    };
-  }
   return {
     isValid: true,
   };

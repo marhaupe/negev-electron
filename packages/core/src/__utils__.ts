@@ -1,13 +1,9 @@
-export function calculateSum(args: number[]) {
-  return args.reduce((accumulator, current) => accumulator + current);
-}
-
-export function calculateAverage(args: number[]) {
-  return Math.round(calculateSum(args) / args.length);
-}
-
 export async function sleep(ms: number) {
   return new Promise(resolve => {
     setTimeout(resolve, ms);
   });
+}
+
+export function isError(e: any): boolean {
+  return e && e.stack && e.message && typeof e.stack === 'string' && typeof e.message === 'string';
 }
