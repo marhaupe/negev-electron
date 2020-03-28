@@ -1,16 +1,11 @@
-import { Config, Stats, QueryResult } from './types';
-import { validateConfig } from './validator';
+import { Stats, QueryResult, DurationLoadtestConfig, NumberRequestsLoadtestConfig, Config } from './types';
 import Stream from 'stream';
-import {
-  calculateTotalDuration,
-  calculateAverageDurationPerRequest,
-  calculateMinDurationPerRequest,
-  calculateMaxDurationPerRequest,
-  calculateJitter,
-} from './calculator';
 import { Request } from 'node-fetch';
 import { executeQuery } from './query';
-import { isError } from './__utils__';
+import { isError, sleep } from './__utils__';
+import { validateConfig } from './validator';
+import { collectStats } from './stats';
+import timeSpan from 'time-span';
 
 /**
  *
@@ -18,7 +13,9 @@ import { isError } from './__utils__';
  * is being updated and written to the stream. This enables realtime display of the data collected by
  * the loadtest.
  */
-export function executeStreamingLoadtest(config: Config): Stream.Readable {
+export function executeStreamingLoadtest(
+  config: DurationLoadtestConfig | NumberRequestsLoadtestConfig
+): Stream.Readable {
   const stream = new Stream.Readable({
     objectMode: true,
     read(_size) {},
@@ -33,19 +30,19 @@ export function executeStreamingLoadtest(config: Config): Stream.Readable {
 }
 
 export async function executeLoadtest(config: Config, _stream?: Stream.Readable): Promise<Stats> {
-  const { endpoint, query, duration, rateLimit, numberRequests = 200, headers = {} } = config;
-  const validationResult = validateConfig({
-    endpoint,
-    query,
-    duration,
-    rateLimit,
-    numberRequests,
-    headers,
-  });
+  if (
+    (config as DurationLoadtestConfig & NumberRequestsLoadtestConfig).duration &&
+    (config as DurationLoadtestConfig & NumberRequestsLoadtestConfig).numberRequests
+  ) {
+    console.warn('You set both duration and numberOfRequests. Ignoring numberOfRequests.');
+  }
+
+  const validationResult = validateConfig(config);
   if (!validationResult.isValid) {
     throw new Error(validationResult.reason);
   }
 
+  const { endpoint, query, headers = {} } = config;
   const request = new Request(endpoint, {
     method: 'POST',
     headers: {
@@ -55,35 +52,67 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
     body: JSON.stringify({ query }),
   });
 
-  if (duration) {
+  if ((config as DurationLoadtestConfig).duration) {
+    // const castedConfig = config as DurationLoadtestConfig;
     throw new Error('not implemented. please leave duration to undefined.');
   }
 
-  const pendingRequests: Promise<QueryResult | Error>[] = [];
-
-  for (let i = 0; i < numberRequests; i++) {
-    pendingRequests.push(executeQuery(request));
+  const castedConfig = config as NumberRequestsLoadtestConfig;
+  if (!castedConfig.numberRequests) {
+    castedConfig.numberRequests = 200;
   }
+
+  const pendingRequests = await executeRequests(request, castedConfig.numberRequests, castedConfig.rateLimit);
 
   const resolvedPromises = await Promise.all(pendingRequests);
 
   return collectStats(resolvedPromises.filter(result => !isError(result)) as QueryResult[]);
 }
 
-function collectStats(responses: QueryResult[]): Stats {
-  const totalRequests = responses.length;
-  const combinedDuration = calculateTotalDuration(responses);
-  const averageDurationPerRequest = calculateAverageDurationPerRequest(combinedDuration, totalRequests);
+async function executeRequests(
+  request: Request,
+  numberRequests: number,
+  rateLimit?: number
+): Promise<Promise<QueryResult | Error>[]> {
+  const pendingRequests: Promise<QueryResult | Error>[] = [];
 
-  const minDurationPerRequest = calculateMinDurationPerRequest(responses);
-  const maxDurationPerRequest = calculateMaxDurationPerRequest(responses);
-  const jitter = calculateJitter(maxDurationPerRequest, minDurationPerRequest, averageDurationPerRequest);
+  // If no rate limit is set, do all the work in one chunk.
+  // If a limit is set, split the work equally in chunks,
+  // After each iteration, we have to check if 1s has elapsed
+  // since starting the work on the current chunk. If this
+  // is the case and a limit is set, sleep the remaining fraction of a second.
+  const chunks = getChunks(numberRequests, rateLimit);
+  for (let i = 0; i < chunks.length; i++) {
+    const numberRequestsForCurrentChunk = chunks[i];
+    const end = timeSpan();
+    for (let j = 0; j < numberRequestsForCurrentChunk; j++) {
+      pendingRequests.push(executeQuery(request));
+      const timeElapsed = end();
+      if (rateLimit && timeElapsed < 1000) {
+        await sleep(1000 - timeElapsed);
+      }
+    }
+  }
 
-  return {
-    totalRequests,
-    averageDurationPerRequest,
-    maxDurationPerRequest,
-    minDurationPerRequest,
-    jitter,
-  };
+  return pendingRequests;
+}
+
+export function getChunks(numberRequests: number, rateLimit?: number): number[] {
+  if (!rateLimit) {
+    return [numberRequests];
+  }
+
+  const chunks: number[] = [];
+  let remainingWork = numberRequests;
+  let maxChunkSize = rateLimit;
+
+  while (true) {
+    if (remainingWork <= maxChunkSize) {
+      chunks.push(remainingWork);
+      break;
+    }
+    chunks.push(maxChunkSize);
+    remainingWork = remainingWork - maxChunkSize;
+  }
+  return chunks;
 }

@@ -1,11 +1,19 @@
-export type Config = {
+type BaseConfig = {
   endpoint: string;
   query: string;
   headers?: Record<string, string>;
-  duration?: number;
-  numberRequests?: number;
   rateLimit?: number;
 };
+
+export type DurationLoadtestConfig = BaseConfig & {
+  duration?: number;
+};
+
+export type NumberRequestsLoadtestConfig = BaseConfig & {
+  numberRequests?: number;
+};
+
+export type Config = DurationLoadtestConfig | NumberRequestsLoadtestConfig;
 
 export type Stats = {
   maxDurationPerRequest: number;

@@ -1,29 +1,36 @@
-import { Config } from './types';
+import { NumberRequestsLoadtestConfig, DurationLoadtestConfig } from './types';
 
 type ValidationResult = {
   isValid: boolean;
   reason?: string;
 };
 
-export function validateConfig(config: Config): ValidationResult {
+export function validateConfig(config: NumberRequestsLoadtestConfig & DurationLoadtestConfig): ValidationResult {
   if (config.duration && !numberIsValid(config.duration)) {
     return {
       isValid: false,
-      reason: 'config validation failed: duration is invalid',
+      reason: 'duration is invalid',
     };
   }
   if (config.numberRequests && !numberIsValid(config.numberRequests)) {
     return {
       isValid: false,
-      reason: 'config validation failed: numberRequests is invalid',
+      reason: 'numberRequests is invalid',
     };
   }
   if (config.rateLimit && !numberIsValid(config.rateLimit)) {
     return {
       isValid: false,
-      reason: 'config validation failed: rateLimit is invalid',
+      reason: 'rateLimit is invalid',
     };
   }
+  if (config.numberRequests && config.rateLimit && config.numberRequests < config.rateLimit) {
+    return {
+      isValid: false,
+      reason: 'numberRequests may not be smaller than rateLimit',
+    };
+  }
+
   return {
     isValid: true,
   };
