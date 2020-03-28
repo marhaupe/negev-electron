@@ -23,7 +23,6 @@ function executeRequests({ request, numberRequests, rateLimit }, doneCallback) {
     limitedExecuteFunction();
   }
 
-  console.log('invoking callback with results', results.length);
   doneCallback(null, results);
 }
 

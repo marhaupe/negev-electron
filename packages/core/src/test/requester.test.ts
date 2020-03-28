@@ -1,6 +1,6 @@
 import { Request } from 'node-fetch';
 import fetchMock from 'fetch-mock';
-const { executeRequests } = require('../requester');
+const executeRequests = require('../requester');
 
 const baseRequest = new Request('http://marhaupe.test/graphql', { method: 'POST' });
 describe('tests requester', () => {

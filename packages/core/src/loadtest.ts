@@ -53,7 +53,7 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
       'Content-Type': 'application/json',
       ...headers,
     },
-    body: JSON.stringify(query),
+    body: JSON.stringify({ query }),
   });
 
   if (duration) {
@@ -61,22 +61,32 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
   }
 
   const executeRequestsInWorker = workerFarm(require.resolve('./requester'));
-  const results: Promise<QueryResult | Error>[] = [];
+  const workerPromises: Promise<Promise<QueryResult | Error>[]>[] = [];
   for (let i = 0; i < numberWorkers; i++) {
-    executeRequestsInWorker(
-      {
-        request,
-        numberRequests: Math.round(numberRequests / numberWorkers),
-        rateLimit,
-      },
-      function(_err: Error | null, result: Promise<QueryResult | Error>[]) {
-        results.push(...result);
-      }
+    workerPromises.push(
+      new Promise((resolve, reject) => {
+        executeRequestsInWorker(
+          {
+            request,
+            numberRequests: Math.round(numberRequests / numberWorkers),
+            rateLimit,
+          },
+          function(err: Error | null, result: Promise<QueryResult | Error>[]) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+      })
     );
   }
-  const resolvedResults = await Promise.all(results);
+  const kickedOffPromises = await Promise.all(workerPromises);
+  const flattenedKickedOffPromises = kickedOffPromises.flat(1);
+  const resolvedPromises = await Promise.all(flattenedKickedOffPromises);
 
-  return collectStats(resolvedResults.filter(result => !isError(result)) as QueryResult[]);
+  return collectStats(resolvedPromises.filter(result => !isError(result)) as QueryResult[]);
 }
 
 function isError(e: any): boolean {
