@@ -7,7 +7,7 @@ export async function executeQuery(request: Request): Promise<QueryResult | Erro
 
     const response = await fetch(request);
 
-    const durationHrTime = process.hrtime(startHrTime);
+    const durationHRTime = process.hrtime(startHrTime);
 
     const json = await response.json();
     let errors = undefined;
@@ -16,7 +16,7 @@ export async function executeQuery(request: Request): Promise<QueryResult | Erro
     }
 
     return {
-      duration: durationHrTimeToMs(durationHrTime),
+      duration: hrTimeToMS(durationHRTime),
       statusCode: response.status,
       errors,
     };
@@ -25,6 +25,7 @@ export async function executeQuery(request: Request): Promise<QueryResult | Erro
   }
 }
 
-function durationHrTimeToMs(hrtime: [number, number]) {
-  return hrtime[0] * 1e6 + hrtime[1] / 1e6;
+function hrTimeToMS(hrtime: [number, number]) {
+  const nanoseconds = hrtime[0] * 1e9 + hrtime[1];
+  return nanoseconds / 1e6;
 }
