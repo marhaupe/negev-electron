@@ -112,19 +112,37 @@ const askQuery = {
   },
 }
 
-const askShouldAskNumberRequests = {
-  type: 'confirm',
-  name: 'shouldAskNumberRequests',
-  message: 'Do you want to limit the total number of requests?',
-  default: false,
+enum LoadTestType {
+  numberRequests = 'I want to set a fixed number of requests.',
+  duration = 'I want to run the loadtest for a specified duration.',
+}
+
+const askLoadtestType = {
+  type: 'list',
+  name: 'loadtestType',
+  message: 'Which type of loadtest do you want to run?',
+
+  choices: [LoadTestType.numberRequests, LoadTestType.duration],
+  default: LoadTestType.numberRequests,
 }
 
 const askNumberRequests = {
   type: 'number',
   name: 'numberRequests',
   default: 200,
-  message: 'How many requests do you want to run at most?',
-  when: (answers: any): boolean => answers.shouldAskNumberRequests,
+  message: 'How many requests do you want to send?',
+  when: (answers: any): boolean =>
+    answers.loadtestType === LoadTestType.numberRequests,
+  validate: validateNumber,
+}
+
+const askDuration = {
+  type: 'number',
+  name: 'duration',
+  default: 10,
+  message: 'How long (in seconds) should the loadtest take?',
+  when: (answers: any): boolean =>
+    answers.loadtestType === LoadTestType.duration,
   validate: validateNumber,
 }
 
@@ -144,22 +162,6 @@ const askRateLimit = {
   validate: validateNumber,
 }
 
-const askShouldAskDuration = {
-  type: 'confirm',
-  name: 'shouldAskDuration',
-  message: 'Do you want to set a duration?',
-  default: false,
-}
-
-const askDuration = {
-  type: 'number',
-  name: 'duration',
-  default: 10,
-  message: 'How long (in seconds) should the loadtest take?',
-  when: (answers: any): boolean => answers.shouldAskDuration,
-  validate: validateNumber,
-}
-
 const command: GluegunCommand = {
   name: 'graphql-loadtest-cli',
   run: async () => {
@@ -168,9 +170,8 @@ const command: GluegunCommand = {
       askHeaders,
       askEndpoint,
       askQuery,
-      askShouldAskDuration,
+      askLoadtestType,
       askDuration,
-      askShouldAskNumberRequests,
       askNumberRequests,
       askShouldAskRateLimit,
       askRateLimit,
@@ -185,7 +186,6 @@ const command: GluegunCommand = {
       rateLimit: result.rateLimit,
     })
 
-    delete loadtestResult.responses
     console.log(loadtestResult)
   },
 }
