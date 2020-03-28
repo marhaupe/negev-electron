@@ -21,6 +21,7 @@ export type Stats = {
   averageDurationPerRequest: number;
   jitter: number;
   totalRequests: number;
+  requestsPerSecond: number;
 };
 
 export type QueryResult = {

@@ -40,3 +40,7 @@ export function calculateSum(args: number[]) {
 export function calculateAverage(args: number[]) {
   return roundDecimalPlaces(calculateSum(args) / args.length, 2);
 }
+
+export function calculateRequestsPerSecond(requestCount: number, durationMS: number): number {
+  return roundDecimalPlaces(requestCount / (durationMS / 1000), 2);
+}

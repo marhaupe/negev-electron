@@ -1,11 +1,11 @@
 import { Stats, QueryResult, DurationLoadtestConfig, NumberRequestsLoadtestConfig, Config } from './types';
 import Stream from 'stream';
-import { Request } from 'node-fetch';
-import { executeQuery } from './query';
-import { isError, sleep } from './__utils__';
 import { validateConfig } from './validator';
-import { collectStats } from './stats';
 import timeSpan from 'time-span';
+import { isError, sleep } from './__utils__';
+import { collectStats } from './stats';
+import { executeQuery } from './query';
+import { Request } from 'node-fetch';
 
 /**
  *
@@ -62,11 +62,15 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
     castedConfig.numberRequests = 200;
   }
 
+  const end = timeSpan();
   const pendingRequests = await executeRequests(request, castedConfig.numberRequests, castedConfig.rateLimit);
 
   const resolvedPromises = await Promise.all(pendingRequests);
 
-  return collectStats(resolvedPromises.filter(result => !isError(result)) as QueryResult[]);
+  const loadtestDuration = end.rounded();
+
+  const filteredPromises = resolvedPromises.filter(result => !isError(result)) as QueryResult[];
+  return collectStats(filteredPromises, loadtestDuration);
 }
 
 async function executeRequests(

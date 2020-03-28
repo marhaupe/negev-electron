@@ -1,4 +1,4 @@
-import { calculateJitter, calculateSum, calculateAverage } from '../calculator';
+import { calculateJitter, calculateSum, calculateAverage, calculateRequestsPerSecond } from '../calculator';
 
 it('tests jitter', () => {
   expect(calculateJitter(70, 50, 60)).toBe(10);
@@ -14,4 +14,10 @@ it('tests calculate sum', () => {
 it('tests calculate average', () => {
   expect(calculateAverage([1, 4, 1, 4])).toEqual(2.5);
   expect(calculateAverage([1.005])).toEqual(1.01);
+});
+
+it('tests calculate requestsPerSecond', () => {
+  expect(calculateRequestsPerSecond(10, 2000)).toEqual(5);
+  expect(calculateRequestsPerSecond(2.5, 2500)).toEqual(1);
+  expect(calculateRequestsPerSecond(5, 2000)).toEqual(2.5);
 });

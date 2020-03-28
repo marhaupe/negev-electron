@@ -1,13 +1,14 @@
 import { Request } from 'node-fetch';
 import { QueryResult } from './types';
+import timeSpan from 'time-span';
 
 export async function executeQuery(request: Request): Promise<QueryResult | Error> {
   try {
-    const startHrTime = process.hrtime();
+    const end = timeSpan();
 
     const response = await fetch(request);
 
-    const durationHRTime = process.hrtime(startHrTime);
+    const duration = end.rounded();
 
     const json = await response.json();
     let errors = undefined;
@@ -16,16 +17,11 @@ export async function executeQuery(request: Request): Promise<QueryResult | Erro
     }
 
     return {
-      duration: hrTimeToMS(durationHRTime),
       statusCode: response.status,
+      duration,
       errors,
     };
   } catch (error) {
     return error;
   }
-}
-
-function hrTimeToMS(hrtime: [number, number]) {
-  const nanoseconds = hrtime[0] * 1e9 + hrtime[1];
-  return nanoseconds / 1e6;
 }
