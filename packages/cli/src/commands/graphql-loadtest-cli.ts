@@ -192,7 +192,7 @@ const command: GluegunCommand = {
         return result
       })
       .catch((error) => {
-        spinner.fail(error)
+        spinner.fail(error.toString())
         return null
       })
 
