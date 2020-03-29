@@ -53,53 +53,136 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
   });
 
   if ((config as DurationLoadtestConfig).duration) {
-    // const castedConfig = config as DurationLoadtestConfig;
-    throw new Error('not implemented. please leave duration to undefined.');
+    return executeDurationLoadtest(config, request);
   }
 
-  const castedConfig = config as NumberRequestsLoadtestConfig;
-  if (!castedConfig.numberRequests) {
-    castedConfig.numberRequests = 200;
+  return executeNumberRequestsLoadtest(config, request);
+}
+
+async function executeDurationLoadtest(config: DurationLoadtestConfig, request: Request): Promise<Stats> {
+  if (!config.duration) {
+    config.duration = 10;
   }
 
   const end = timeSpan();
-  const pendingRequests = await executeRequests(request, castedConfig.numberRequests, castedConfig.rateLimit);
 
-  const resolvedPromises = await Promise.all(pendingRequests);
+  const requester = new DurationRequester(request);
+  await requester.sendRequests(config.duration, config.rateLimit);
+  await requester.awaitPendingRequests();
+  const resolvedPromises = requester.getResolvedRequests();
 
   const loadtestDuration = end.rounded();
 
-  const filteredPromises = resolvedPromises.filter(result => !isError(result)) as QueryResult[];
-  return collectStats(filteredPromises, loadtestDuration);
+  return collectStats(resolvedPromises, loadtestDuration);
 }
 
-async function executeRequests(
-  request: Request,
-  numberRequests: number,
-  rateLimit?: number
-): Promise<Promise<QueryResult | Error>[]> {
-  const pendingRequests: Promise<QueryResult | Error>[] = [];
+async function executeNumberRequestsLoadtest(config: NumberRequestsLoadtestConfig, request: Request): Promise<Stats> {
+  if (!config.numberRequests) {
+    config.numberRequests = 200;
+  }
 
-  // If no rate limit is set, do all the work in one chunk.
-  // If a limit is set, split the work equally in chunks,
-  // After each iteration, we have to check if 1s has elapsed
-  // since starting the work on the current chunk and sleep the remaining
-  // fraction of a second if we have to.
-  const chunks = getChunks(numberRequests, rateLimit);
-  for (let i = 0; i < chunks.length; i++) {
-    const numberRequestsForCurrentChunk = chunks[i];
-    const end = timeSpan();
-    for (let j = 0; j < numberRequestsForCurrentChunk; j++) {
-      pendingRequests.push(executeQuery(request));
-      const timeElapsed = end.rounded();
-      const isLastChunk = i === chunks.length - 1;
-      if (rateLimit && timeElapsed < 1000 && !isLastChunk) {
-        await sleep(1000 - timeElapsed);
+  const end = timeSpan();
+
+  const requester = new NumberRequestsRequester(request);
+  await requester.sendRequests(config.numberRequests, config.rateLimit);
+  await requester.awaitPendingRequests();
+  const resolvedPromises = requester.getResolvedRequests();
+
+  const loadtestDuration = end.rounded();
+
+  return collectStats(resolvedPromises, loadtestDuration);
+}
+
+abstract class Requester {
+  request: Request;
+  resolvedRequests: QueryResult[];
+  rejectedRequests: Error[];
+  pendingRequests: Promise<QueryResult | Error>[];
+
+  constructor(request: Request) {
+    this.request = request;
+    this.resolvedRequests = [];
+    this.rejectedRequests = [];
+    this.pendingRequests = [];
+  }
+
+  protected sendSingleRequest(index: number) {
+    this.pendingRequests.push(
+      executeQuery(this.request)
+        .then(response => {
+          if (isError(response)) {
+            this.rejectedRequests.push(response as Error);
+            return response as Error;
+          } else {
+            this.resolvedRequests.push(response as QueryResult);
+            return response as QueryResult;
+          }
+        })
+        .catch(error => {
+          this.rejectedRequests.push(error);
+          return error as Error;
+        })
+        .finally(() => {
+          this.pendingRequests.slice(index, 1);
+        })
+    );
+  }
+
+  public getResolvedRequests(): QueryResult[] {
+    return this.resolvedRequests;
+  }
+
+  public getRejectedRequests(): Error[] {
+    return this.rejectedRequests;
+  }
+
+  public async awaitPendingRequests(): Promise<(QueryResult | Error)[]> {
+    console.log(this.pendingRequests.length);
+    return Promise.all(this.pendingRequests);
+  }
+}
+
+class DurationRequester extends Requester {
+  async sendRequests(duration: number, rateLimit = 5000): Promise<void> {
+    const getTotalDuration = timeSpan();
+    for (let i = 0; i < Infinity; i++) {
+      const getChunkDuration = timeSpan();
+      const numberRequestsForCurrentChunk = rateLimit ? rateLimit : Infinity;
+      for (let j = 0; j < numberRequestsForCurrentChunk; j++) {
+        if (getTotalDuration() >= duration * 1000) {
+          return;
+        }
+        this.sendSingleRequest(i * j);
+        const chunkTimeElapsed = getChunkDuration();
+        if (rateLimit && chunkTimeElapsed < 1000) {
+          await sleep(1000 - chunkTimeElapsed);
+        }
       }
     }
   }
+}
 
-  return pendingRequests;
+class NumberRequestsRequester extends Requester {
+  async sendRequests(numberRequests: number, rateLimit = 5000): Promise<void> {
+    // If no rate limit is set, do all the work in one chunk.
+    // If a limit is set, split the work equally in chunks,
+    // After each iteration, we have to check if 1s has elapsed
+    // since starting the work on the current chunk and sleep the remaining
+    // fraction of a second if we have to.
+    const chunks = getChunks(numberRequests, rateLimit);
+    for (let i = 0; i < chunks.length; i++) {
+      const numberRequestsForCurrentChunk = chunks[i];
+      const getChunkTimeElapsed = timeSpan();
+      for (let j = 0; j < numberRequestsForCurrentChunk; j++) {
+        this.sendSingleRequest(i * j);
+        const chunkTimeElapsed = getChunkTimeElapsed();
+        const isLastChunk = i === chunks.length - 1;
+        if (rateLimit && chunkTimeElapsed < 1000 && !isLastChunk) {
+          await sleep(1000 - chunkTimeElapsed);
+        }
+      }
+    }
+  }
 }
 
 export function getChunks(numberRequests: number, rateLimit?: number): number[] {
