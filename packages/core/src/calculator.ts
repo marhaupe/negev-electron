@@ -57,6 +57,13 @@ export function calculateHistogram(responses: QueryResult[]): Histogram {
 
   responses.forEach(response => {
     const nearestBucket = findNearestBucket(histogram, response.duration);
+    if (isNaN(nearestBucket)) {
+      console.warn(
+        `The nearest histogram bucket for ${response.duration} is NaN. This is a known bug that can't easily be reproduced. ` +
+          `Feel free to open an issue at https://github.com/marhaupe/graphql-loadtest. ` +
+          `Tried to find bucket for ${response.duration} from ${histogram}`
+      );
+    }
     histogram[nearestBucket]++;
   });
 
