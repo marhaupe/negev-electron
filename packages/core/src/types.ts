@@ -16,12 +16,33 @@ export type NumberRequestsLoadtestConfig = BaseConfig & {
 export type Config = DurationLoadtestConfig | NumberRequestsLoadtestConfig;
 
 export type Stats = {
-  maxDurationPerRequest: number;
-  minDurationPerRequest: number;
-  averageDurationPerRequest: number;
-  jitter: number;
-  totalRequests: number;
+  totalDuration: number;
+  slowest: number;
+  fastest: number;
+  average: number;
   requestsPerSecond: number;
+  latencyDistribution: LatencyDistribution;
+  errorDistribution: ErrorDistribution;
+  histogram: Histogram;
+};
+
+export type ErrorDistribution = {
+  errorCount: number;
+  successCount: number;
+};
+
+export type Histogram = {
+  [duration: number]: number;
+};
+
+export type LatencyDistribution = {
+  10: number;
+  25: number;
+  50: number;
+  75: number;
+  90: number;
+  95: number;
+  99: number;
 };
 
 export type QueryResult = {

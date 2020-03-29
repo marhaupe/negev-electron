@@ -91,7 +91,7 @@ async function executeRequests(
     const end = timeSpan();
     for (let j = 0; j < numberRequestsForCurrentChunk; j++) {
       pendingRequests.push(executeQuery(request));
-      const timeElapsed = end();
+      const timeElapsed = end.rounded();
       const isLastChunk = i === chunks.length - 1;
       if (rateLimit && timeElapsed < 1000 && !isLastChunk) {
         await sleep(1000 - timeElapsed);

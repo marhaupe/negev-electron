@@ -1,4 +1,4 @@
-import { GluegunCommand, http } from 'gluegun'
+import { GluegunCommand, http, GluegunToolbox } from 'gluegun'
 import fetch from 'node-fetch'
 import * as inquirer from 'inquirer'
 import { introspectionQuery, parse, buildClientSchema, validate } from 'graphql'
@@ -164,7 +164,7 @@ const askRateLimit = {
 
 const command: GluegunCommand = {
   name: 'graphql-loadtest-cli',
-  run: async () => {
+  run: async ({ print }: GluegunToolbox) => {
     const result = await inquirer.prompt([
       askShoudAskHeaders,
       askHeaders,
@@ -177,6 +177,8 @@ const command: GluegunCommand = {
       askRateLimit,
     ])
 
+    const spinner = print.spin('Running loadtest...')
+
     const loadtestResult = await executeLoadtest({
       endpoint: result.endpoint,
       query: result.query,
@@ -185,8 +187,55 @@ const command: GluegunCommand = {
       numberRequests: result.numberRequests,
       rateLimit: result.rateLimit,
     })
+      .then((result) => {
+        spinner.succeed('Running loadtest... Done.')
+        return result
+      })
+      .catch((error) => {
+        spinner.fail(error)
+        return null
+      })
 
-    console.log(loadtestResult)
+    if (!loadtestResult) {
+      return
+    }
+
+    loadtestResult.average
+
+    print.newline()
+
+    print.info('Summary:')
+    print.table(
+      [
+        ['Total:', loadtestResult.totalDuration + ' ms'],
+        ['Slowest:', loadtestResult.slowest + ' ms'],
+        ['Fastest:', loadtestResult.fastest + ' ms'],
+        ['Average:', loadtestResult.average + ' ms'],
+        ['Requests/sec:', loadtestResult.requestsPerSecond],
+      ],
+      { format: 'default' }
+    )
+
+    print.newline()
+
+    print.info('Latency Distribution:')
+    print.info('  10% in ' + loadtestResult.latencyDistribution[10] + ' ms')
+    print.info('  25% in ' + loadtestResult.latencyDistribution[25] + ' ms')
+    print.info('  50% in ' + loadtestResult.latencyDistribution[50] + ' ms')
+    print.info('  75% in ' + loadtestResult.latencyDistribution[75] + ' ms')
+    print.info('  90% in ' + loadtestResult.latencyDistribution[90] + ' ms')
+    print.info('  95% in ' + loadtestResult.latencyDistribution[95] + ' ms')
+    print.info('  99% in ' + loadtestResult.latencyDistribution[99] + ' ms')
+
+    print.newline()
+
+    print.info('Error distribution:')
+    print.table([
+      ['Successes', loadtestResult.errorDistribution.successCount],
+      ['Errors', loadtestResult.errorDistribution.errorCount],
+    ])
+
+    // TODO: Histogram after fixes in core are done.
   },
 }
 export default command

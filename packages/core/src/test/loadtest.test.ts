@@ -13,7 +13,7 @@ describe('tests execute', () => {
       query: '{ books { author } }',
       numberRequests: 200,
     });
-    expect(result.totalRequests).toEqual(200);
+    expect(result.errorDistribution.successCount).toEqual(200);
   });
 
   it('tests that the correct amount of requests are being sent when ratelimit is set', async () => {
@@ -24,7 +24,7 @@ describe('tests execute', () => {
       numberRequests: 200,
       rateLimit: 190,
     });
-    expect(result.totalRequests).toEqual(200);
+    expect(result.errorDistribution.successCount).toEqual(200);
   });
 
   it('tests getChunks', () => {

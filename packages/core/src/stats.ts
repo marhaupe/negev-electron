@@ -1,29 +1,38 @@
+// Our output should look similar to the one of `hey`:
+
 import { Stats, QueryResult } from './types';
 import {
   calculateTotalDuration,
-  calculateAverageDurationPerRequest,
-  calculateMinDurationPerRequest,
-  calculateMaxDurationPerRequest,
-  calculateJitter,
+  calculateAverageDuration,
+  findFastestRequest,
+  findSlowestRequest,
   calculateRequestsPerSecond,
+  calculateHistogram,
+  calculateLatencyDistribution,
+  calculateErrorDistribution,
 } from './calculator';
 
-export function collectStats(responses: QueryResult[], duration: number): Stats {
+export function collectStats(responses: QueryResult[], totalDuration: number): Stats {
   const totalRequests = responses.length;
   const combinedDuration = calculateTotalDuration(responses);
-  const averageDurationPerRequest = calculateAverageDurationPerRequest(combinedDuration, totalRequests);
+  const averageDurationPerRequest = calculateAverageDuration(combinedDuration, totalRequests);
 
-  const minDurationPerRequest = calculateMinDurationPerRequest(responses);
-  const maxDurationPerRequest = calculateMaxDurationPerRequest(responses);
-  const jitter = calculateJitter(maxDurationPerRequest, minDurationPerRequest, averageDurationPerRequest);
-  const requestsPerSecond = calculateRequestsPerSecond(totalRequests, duration);
+  const minDurationPerRequest = findFastestRequest(responses);
+  const maxDurationPerRequest = findSlowestRequest(responses);
+  const requestsPerSecond = calculateRequestsPerSecond(totalRequests, totalDuration);
+
+  const histogram = calculateHistogram(responses);
+  const latencyDistribution = calculateLatencyDistribution(responses);
+  const errorDistribution = calculateErrorDistribution(responses);
 
   return {
-    totalRequests,
-    averageDurationPerRequest,
-    maxDurationPerRequest,
-    minDurationPerRequest,
-    jitter,
+    average: averageDurationPerRequest,
+    slowest: maxDurationPerRequest,
+    fastest: minDurationPerRequest,
     requestsPerSecond,
+    totalDuration,
+    latencyDistribution,
+    errorDistribution,
+    histogram,
   };
 }
