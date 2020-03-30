@@ -3,6 +3,7 @@ type BaseConfig = {
   query: string;
   headers?: Record<string, string>;
   rateLimit?: number;
+  concurrencyLimit?: number;
 };
 
 export type DurationLoadtestConfig = BaseConfig & {
