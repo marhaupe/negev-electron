@@ -17,6 +17,7 @@ export type NumberRequestsLoadtestConfig = BaseConfig & {
 export type Config = DurationLoadtestConfig | NumberRequestsLoadtestConfig;
 
 export type Stats = {
+  totalRequests: number;
   totalDuration: number;
   slowest: number;
   fastest: number;

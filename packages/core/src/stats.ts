@@ -26,6 +26,7 @@ export function collectStats(responses: QueryResult[], totalDuration: number): S
   const errorDistribution = calculateErrorDistribution(responses);
 
   return {
+    totalRequests,
     average: averageDurationPerRequest,
     slowest: maxDurationPerRequest,
     fastest: minDurationPerRequest,

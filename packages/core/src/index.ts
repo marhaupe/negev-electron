@@ -1,5 +1,11 @@
 import fetch, { RequestInfo } from 'node-fetch';
-export { executeLoadtest, executeStreamingLoadtest } from './loadtest';
+export {
+  executeLoadtest,
+  executeStreamingLoadtest,
+  DEFAULT_CONCURRENCY_LIMIT,
+  DEFAULT_DURATION,
+  DEFAULT_NUMBER_REQUESTS,
+} from './loadtest';
 export * from './types';
 
 // Make `fetch` globally accessible for easier mocking.

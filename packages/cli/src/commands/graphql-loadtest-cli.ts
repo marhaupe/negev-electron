@@ -2,21 +2,31 @@ import { GluegunCommand, http, GluegunToolbox } from 'gluegun'
 import fetch from 'node-fetch'
 import * as inquirer from 'inquirer'
 import { introspectionQuery, parse, buildClientSchema, validate } from 'graphql'
-import { executeLoadtest } from 'graphql-loadtest'
+import {
+  executeLoadtest,
+  DEFAULT_CONCURRENCY_LIMIT,
+  DEFAULT_DURATION,
+  DEFAULT_NUMBER_REQUESTS,
+} from 'graphql-loadtest'
 
 function validateNumber(input: string): true | string {
-  const error = 'Please enter an integer'
   try {
     const num = parseInt(input, 10)
     if (isNaN(num)) {
-      return error
+      return 'Please enter an integer'
     }
-    if (typeof num === 'number') {
-      return true
+    if (typeof num !== 'number') {
+      return 'Please enter an integer'
     }
-    return
+    if (num <= 0) {
+      return 'Please enter a value greater than zero.'
+    }
+    if (num >= Number.MAX_SAFE_INTEGER) {
+      return 'Please enter a smaller value.'
+    }
+    return true
   } catch {
-    return error
+    return 'Please enter an integer'
   }
 }
 
@@ -129,7 +139,7 @@ const askLoadtestType = {
 const askNumberRequests = {
   type: 'number',
   name: 'numberRequests',
-  default: 200,
+  default: DEFAULT_NUMBER_REQUESTS,
   message: 'How many requests do you want to send?',
   when: (answers: any): boolean =>
     answers.loadtestType === LoadTestType.numberRequests,
@@ -139,7 +149,7 @@ const askNumberRequests = {
 const askDuration = {
   type: 'number',
   name: 'duration',
-  default: 10,
+  default: DEFAULT_DURATION,
   message: 'How long (in seconds) should the loadtest take?',
   when: (answers: any): boolean =>
     answers.loadtestType === LoadTestType.duration,
@@ -156,9 +166,16 @@ const askShouldAskRateLimit = {
 const askRateLimit = {
   type: 'number',
   name: 'rateLimit',
-  default: 50,
   message: 'How many queries should I send per second at most?',
   when: (answers: any): boolean => answers.shouldAskRateLimit,
+  validate: validateNumber,
+}
+
+const askConcurrencyLimit = {
+  type: 'number',
+  name: 'concurrencyLimit',
+  default: DEFAULT_CONCURRENCY_LIMIT,
+  message: 'How many concurrent requests should I send at most?',
   validate: validateNumber,
 }
 
@@ -175,6 +192,7 @@ const command: GluegunCommand = {
       askNumberRequests,
       askShouldAskRateLimit,
       askRateLimit,
+      askConcurrencyLimit,
     ])
 
     const spinner = print.spin('Running loadtest...')
@@ -186,6 +204,7 @@ const command: GluegunCommand = {
       headers: result.headers,
       numberRequests: result.numberRequests,
       rateLimit: result.rateLimit,
+      concurrencyLimit: result.concurrencyLimit,
     })
       .then((result) => {
         spinner.succeed('Running loadtest... Done.')
@@ -207,7 +226,8 @@ const command: GluegunCommand = {
     print.info('Summary:')
     print.table(
       [
-        ['Total:', loadtestResult.totalDuration + ' ms'],
+        ['Total requests:', loadtestResult.totalRequests],
+        ['Loadtest duration:', loadtestResult.totalDuration + ' ms'],
         ['Slowest:', loadtestResult.slowest + ' ms'],
         ['Fastest:', loadtestResult.fastest + ' ms'],
         ['Average:', loadtestResult.average + ' ms'],

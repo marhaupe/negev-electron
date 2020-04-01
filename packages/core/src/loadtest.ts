@@ -6,9 +6,9 @@ import { collectStats } from './stats';
 import { Request } from 'node-fetch';
 import { DurationRequester, NumberRequestsRequester } from './requester';
 
-const DEFAULT_CONCURRENCY_LIMIT = 50;
-const DEFAULT_NUMBER_REQUESTS = 500;
-const DEFAULT_DURATION = 200;
+export const DEFAULT_CONCURRENCY_LIMIT = 50;
+export const DEFAULT_NUMBER_REQUESTS = 500;
+export const DEFAULT_DURATION = 15;
 
 /**
  *
