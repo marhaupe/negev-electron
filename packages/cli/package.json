@@ -1,62 +1,59 @@
 {
   "name": "graphql-loadtest-cli",
-  "version": "0.0.1",
-  "description": "graphql-loadtest-cli CLI",
-  "private": true,
-  "types": "build/types/types.d.ts",
+  "description": "Run loadtests against your GraphQL backend",
+  "version": "0.0.0",
+  "author": "Marcel Haupenthal @marhaupe",
   "bin": {
-    "graphql-loadtest-cli": "bin/graphql-loadtest-cli"
+    "graphql-loadtest-cli": "./bin/run"
   },
-  "scripts": {
-    "format": "prettier --write **/*.{ts,json}",
-    "lint": "eslint src/**/*",
-    "clean-build": "rm -rf ./build",
-    "compile": "tsc -p .",
-    "build": "yarn format && yarn lint && yarn clean-build && yarn compile",
-    "prepublishOnly": "yarn build",
-    "test": "jest",
-    "watch": "jest --watch",
-    "snapupdate": "jest --updateSnapshot",
-    "coverage": "jest --coverage"
-  },
-  "files": [
-    "tsconfig.json",
-    "tslint.json",
-    "build",
-    "LICENSE",
-    "readme.md",
-    "docs",
-    "bin"
-  ],
-  "license": "MIT",
+  "bugs": "https://github.com/marhaupe/graphql-loadtest/issues",
   "dependencies": {
-    "gluegun": "latest",
+    "@oclif/command": "^1",
+    "@oclif/config": "^1",
+    "@oclif/plugin-help": "^2",
+    "cli-table": "^0.3.1",
     "graphql": "^14.6.0",
     "graphql-loadtest": "0.0.1-alpha.2",
     "inquirer": "../Inquirer.js/packages/inquirer",
-    "time-span": "^4.0.0"
+    "node-fetch": "^2.6.0",
+    "ora": "^4.0.3",
+    "tslib": "^1"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.11",
-    "@types/prompts": "^2.0.5",
-    "@typescript-eslint/eslint-plugin": "^2.25.0",
-    "@typescript-eslint/parser": "^2.25.0",
-    "eslint": "^6.8.0",
+    "@oclif/dev-cli": "^1",
+    "@types/cli-table": "^0.3.0",
+    "@types/inquirer": "^6.5.0",
+    "@types/node": "^10",
+    "eslint": "^5.13",
+    "eslint-config-oclif": "^3.1",
+    "eslint-config-oclif-typescript": "^0.1",
     "eslint-config-prettier": "^6.10.1",
-    "eslint-config-standard": "^14.1.1",
-    "jest": "^24.1.0",
-    "prettier": "2.0.2",
-    "ts-jest": "^24.1.0",
-    "ts-node": "^8.4.1",
-    "typescript": "3.8.3"
+    "prettier": "^2.0.2",
+    "ts-node": "^8",
+    "typescript": "^3.3"
   },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node"
+  "engines": {
+    "node": ">=8.0.0"
   },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true
-  }
+  "files": [
+    "/bin",
+    "/lib"
+  ],
+  "homepage": "https://github.com/marhaupe/graphql-loadtest",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "oclif": {
+    "bin": "graphql-loadtest-cli"
+  },
+  "repository": "marhaupe/graphql-loadtest",
+  "scripts": {
+    "posttest": "eslint . --ext .ts --config .eslintrc",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev readme",
+    "test": "echo NO TESTS",
+    "version": "oclif-dev readme && git add README.md"
+  },
+  "types": "lib/index.d.ts"
 }
