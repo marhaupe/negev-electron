@@ -127,7 +127,7 @@ function buildMockResponse(duration: number): QueryResult {
 function buildMockResponses(length: number): QueryResult[] {
   const responses: QueryResult[] = [];
   for (let i = 0; i < length; i++) {
-    responses.push(buildMockResponse(50 + Math.round(Math.random() * 500)));
+    responses.push(buildMockResponse(1 + Math.round(Math.random() * 5000)));
   }
 
   return responses;

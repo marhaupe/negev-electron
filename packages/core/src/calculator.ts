@@ -59,9 +59,9 @@ export function calculateHistogram(responses: QueryResult[]): Histogram {
     const nearestBucket = findNearestBucket(histogram, response.duration);
     if (isNaN(nearestBucket)) {
       console.warn(
-        `The nearest histogram bucket for ${response.duration} is NaN. This is a known bug that can't easily be reproduced. ` +
-          `Feel free to open an issue at https://github.com/marhaupe/graphql-loadtest. ` +
-          `Tried to find bucket for ${response.duration} from ${histogram}`
+        `The nearest histogram bucket for the duration ${response.duration} is NaN. ` +
+          `Feel free to open an issue at https://github.com/marhaupe/graphql-loadtest with the following information:\n` +
+          `Duration: ${response.duration}, Histogram: ${JSON.stringify(histogram, null, 2)}`
       );
     }
     histogram[nearestBucket]++;
@@ -71,17 +71,25 @@ export function calculateHistogram(responses: QueryResult[]): Histogram {
 }
 
 export function findNearestBucket(histogram: Histogram, duration: number): number {
-  const buckets = Object.keys(histogram);
+  const buckets = Object.keys(histogram).map(bucket => parseInt(bucket, 10));
 
-  if (buckets.findIndex(bucket => parseInt(bucket, 10) === duration) >= 0) {
+  if (buckets.find(bucket => bucket === duration)) {
     return duration;
   }
 
-  let indexOfLargerBucket = buckets.findIndex(bucket => parseInt(bucket, 10) > duration);
+  if (duration <= buckets[0]) {
+    return buckets[0];
+  }
+
+  if (duration >= buckets[buckets.length - 1]) {
+    return buckets[buckets.length - 1];
+  }
+
+  let indexOfLargerBucket = buckets.findIndex(bucket => bucket > duration);
   let indexOfSmallerBucket = indexOfLargerBucket - 1;
 
-  const slowerDuration = parseInt(buckets[indexOfLargerBucket]);
-  const fasterDuration = parseInt(buckets[indexOfSmallerBucket]);
+  const slowerDuration = buckets[indexOfLargerBucket];
+  const fasterDuration = buckets[indexOfSmallerBucket];
   const meanDuration = (slowerDuration + fasterDuration) / 2;
   if (meanDuration > duration) {
     return fasterDuration;
