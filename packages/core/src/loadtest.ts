@@ -6,6 +6,10 @@ import { collectStats } from './stats';
 import { Request } from 'node-fetch';
 import { DurationRequester, NumberRequestsRequester } from './requester';
 
+const DEFAULT_CONCURRENCY_LIMIT = 50;
+const DEFAULT_NUMBER_REQUESTS = 500;
+const DEFAULT_DURATION = 200;
+
 /**
  *
  * @returns A readable stream. Each time a sent request is resolved, the updated `Stats` array that
@@ -29,13 +33,6 @@ export function executeStreamingLoadtest(
 }
 
 export async function executeLoadtest(config: Config, _stream?: Stream.Readable): Promise<Stats> {
-  if (
-    (config as DurationLoadtestConfig & NumberRequestsLoadtestConfig).duration &&
-    (config as DurationLoadtestConfig & NumberRequestsLoadtestConfig).numberRequests
-  ) {
-    console.warn('You set both duration and numberOfRequests. Ignoring numberOfRequests.');
-  }
-
   const validationResult = validateConfig(config);
   if (!validationResult.isValid) {
     throw new Error(validationResult.reason);
@@ -51,19 +48,24 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
     body: JSON.stringify({ query }),
   });
 
+  const end = timeSpan();
+
+  let queryResults: QueryResult[] = [];
   if ((config as DurationLoadtestConfig).duration) {
-    return executeDurationLoadtest(config, request);
+    queryResults = await executeDurationLoadtest(config, request);
+  } else {
+    queryResults = await executeNumberRequestsLoadtest(config, request);
   }
 
-  return executeNumberRequestsLoadtest(config, request);
+  const loadtestDuration = end.rounded();
+
+  return collectStats(queryResults, loadtestDuration);
 }
 
 async function executeDurationLoadtest(
-  { concurrencyLimit = 50, duration = 10, rateLimit }: DurationLoadtestConfig,
+  { concurrencyLimit = DEFAULT_CONCURRENCY_LIMIT, duration = DEFAULT_DURATION, rateLimit }: DurationLoadtestConfig,
   request: Request
-): Promise<Stats> {
-  const end = timeSpan();
-
+): Promise<QueryResult[]> {
   const workerPromises: Promise<QueryResult[]>[] = [];
   for (let i = 0; i < concurrencyLimit; i++) {
     workerPromises.push(
@@ -75,20 +77,17 @@ async function executeDurationLoadtest(
     );
   }
 
-  const resolvedWorkerPromises = await Promise.all(workerPromises);
-  const queryResults = resolvedWorkerPromises.flat(1);
-
-  const loadtestDuration = end.rounded();
-
-  return collectStats(queryResults, loadtestDuration);
+  return Promise.all(workerPromises).then(nestedQueryResults => nestedQueryResults.flat(1));
 }
 
 async function executeNumberRequestsLoadtest(
-  { concurrencyLimit = 50, numberRequests = 200, rateLimit }: NumberRequestsLoadtestConfig,
+  {
+    concurrencyLimit = DEFAULT_CONCURRENCY_LIMIT,
+    numberRequests = DEFAULT_NUMBER_REQUESTS,
+    rateLimit,
+  }: NumberRequestsLoadtestConfig,
   request: Request
-): Promise<Stats> {
-  const end = timeSpan();
-
+): Promise<QueryResult[]> {
   const workerPromises: Promise<QueryResult[]>[] = [];
   for (let i = 0; i < concurrencyLimit; i++) {
     workerPromises.push(
@@ -100,10 +99,5 @@ async function executeNumberRequestsLoadtest(
     );
   }
 
-  const resolvedWorkerPromises = await Promise.all(workerPromises);
-  const queryResults = resolvedWorkerPromises.flat(1);
-
-  const loadtestDuration = end.rounded();
-
-  return collectStats(queryResults, loadtestDuration);
+  return Promise.all(workerPromises).then(nestedQueryResults => nestedQueryResults.flat(1));
 }

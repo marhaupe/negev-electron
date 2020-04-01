@@ -62,8 +62,6 @@ export class DurationRequester extends Requester {
   }
 }
 
-// TODO: 3s loadtest, no limit --> only 1000 requests sent.
-// 10s loadtest, 50 limit --> only 450 sent. One off.
 export class NumberRequestsRequester extends Requester {
   async sendRequests(numberRequests: number): Promise<void> {
     // If no rate limit is set, do all the work in one chunk.
