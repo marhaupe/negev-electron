@@ -56,7 +56,7 @@ const askEndpoint = {
   },
 };
 
-const askShoudAskHeaders = {
+const askShouldAskHeaders = {
   type: "confirm",
   name: "shouldAskHeaders",
   message: "Do you want to set any headers?",
@@ -77,16 +77,20 @@ const askHeaders = {
     lines = lines
       .filter((line) => !line.startsWith("#"))
       .filter((line) => line.trim().length !== 0);
-    const headers: Record<string, string> = {};
-    lines.forEach((keyValuePair) => {
-      let [key, value] = keyValuePair.split(":");
-      key = key.trim();
-      value = value.trim();
-      headers[key] = value;
-    });
-    return headers;
+    return parseHeader(lines);
   },
 };
+
+function parseHeader(input: string[]): Record<string, string> {
+  const headers: Record<string, string> = {};
+  input.forEach((keyValuePair) => {
+    let [key, value] = keyValuePair.split(":");
+    key = key.trim();
+    value = value.trim();
+    headers[key] = value;
+  });
+  return headers;
+}
 
 const askQuery = {
   type: "editor",
@@ -183,42 +187,89 @@ const askConcurrencyLimit = {
   validate: validateNumber,
 };
 
+const askShouldPrintConfig = {
+  type: "confirm",
+  name: "shouldPrintConfig",
+  message:
+    "Do you want me to print the config I used? This can be useful for scripting.",
+  default: true,
+};
+
 class GraphqlLoadtestCli extends Command {
-  static description = "describe the command here";
+  static description = "Run loadtests against your GraphQL backend.";
+
+  static usage = "graphql-loadtest-cli [...options]";
 
   static flags = {
     version: flags.version({ char: "v" }),
     help: flags.help({ char: "h" }),
+    headers: flags.string({
+      char: "H",
+      description:
+        'request header. can be set multiple times. example: -H="Content-Type: application/json"',
+      multiple: true,
+    }),
+    endpoint: flags.string({
+      char: "e",
+      description: "the endpoint to test",
+    }),
+    query: flags.string({
+      char: "q",
+      description: "the query to use",
+    }),
+    rateLimit: flags.integer({
+      char: "r",
+      description: "the limit of requests per second",
+    }),
+    concurrencyLimit: flags.integer({
+      char: "c",
+      description: "the limit of concurrent requests",
+    }),
+    duration: flags.integer({
+      char: "d",
+      description: "the total duration of the loadtest",
+      exclusive: ["numberRequests"],
+    }),
+    numberRequests: flags.integer({
+      char: "n",
+      description: "the number of requests to send",
+      exclusive: ["duration"],
+    }),
   };
 
-  static args = [{ name: "file" }];
-
   async run() {
-    const { args, flags } = this.parse(GraphqlLoadtestCli);
-
-    const result = await inquirer.prompt([
-      askShoudAskHeaders,
-      askHeaders,
-      askEndpoint,
-      askQuery,
-      askLoadtestType,
-      askDuration,
-      askNumberRequests,
-      askShouldAskRateLimit,
-      askRateLimit,
-      askConcurrencyLimit,
-    ]);
+    const { flags } = this.parse(GraphqlLoadtestCli);
+    let config: Record<string, any> = {};
+    if (Object.keys(flags).length > 0) {
+      config = flags;
+      if (config.headers) {
+        config.headers = parseHeader(config.headers);
+      }
+    } else {
+      config = await inquirer.prompt([
+        askShouldAskHeaders,
+        askHeaders,
+        askEndpoint,
+        askQuery,
+        askLoadtestType,
+        askDuration,
+        askNumberRequests,
+        askShouldAskRateLimit,
+        askRateLimit,
+        askConcurrencyLimit,
+      ]);
+    }
 
     const spinner = ora("Running loadtest...").start();
 
     const loadtestResult = await executeLoadtest({
-      endpoint: result.endpoint,
-      query: result.query,
-      duration: result.duration,
-      headers: result.headers,
-      numberRequests: result.numberRequests,
-      rateLimit: result.rateLimit,
-      concurrencyLimit: result.concurrencyLimit,
+      endpoint: config.endpoint,
+      query: config.query,
+      duration: config.duration,
+      headers: config.headers,
+      numberRequests: config.numberRequests,
+      rateLimit: config.rateLimit,
+      concurrencyLimit: config.concurrencyLimit,
     })
       .then((result) => {
         spinner.succeed();
@@ -230,16 +281,14 @@ class GraphqlLoadtestCli extends Command {
       });
 
     if (!loadtestResult) {
-      return;
+      this.exit(1);
     }
 
-    loadtestResult.average;
+    this.log("");
 
-    console.log("");
+    this.log("Summary:");
 
-    console.log("Summary:");
-
-    printTable(
+    this.printTable(
       { "Total requests:": loadtestResult.totalRequests },
       { "Loadtest duration:": loadtestResult.totalDuration + " ms" },
       { "Slowest:": loadtestResult.slowest + " ms" },
@@ -248,52 +297,95 @@ class GraphqlLoadtestCli extends Command {
       { "Requests/sec:": loadtestResult.requestsPerSecond }
     );
 
-    console.log("");
+    this.log("");
 
-    console.log("Latency Distribution:");
-    console.log("  10% in " + loadtestResult.latencyDistribution[10] + " ms");
-    console.log("  25% in " + loadtestResult.latencyDistribution[25] + " ms");
-    console.log("  50% in " + loadtestResult.latencyDistribution[50] + " ms");
-    console.log("  75% in " + loadtestResult.latencyDistribution[75] + " ms");
-    console.log("  90% in " + loadtestResult.latencyDistribution[90] + " ms");
-    console.log("  95% in " + loadtestResult.latencyDistribution[95] + " ms");
-    console.log("  99% in " + loadtestResult.latencyDistribution[99] + " ms");
+    this.log("Latency Distribution:");
+    this.log("  10% in " + loadtestResult.latencyDistribution[10] + " ms");
+    this.log("  25% in " + loadtestResult.latencyDistribution[25] + " ms");
+    this.log("  50% in " + loadtestResult.latencyDistribution[50] + " ms");
+    this.log("  75% in " + loadtestResult.latencyDistribution[75] + " ms");
+    this.log("  90% in " + loadtestResult.latencyDistribution[90] + " ms");
+    this.log("  95% in " + loadtestResult.latencyDistribution[95] + " ms");
+    this.log("  99% in " + loadtestResult.latencyDistribution[99] + " ms");
 
-    console.log("");
+    this.log("");
 
-    console.log("Error distribution:");
-    printTable(
+    this.log("Error distribution:");
+    this.printTable(
       { Successes: loadtestResult.errorDistribution.successCount },
       { Errors: loadtestResult.errorDistribution.errorCount }
     );
+
+    if (Object.keys(flags).length === 0) {
+      this.log("");
+      const { shouldPrintConfig } = await inquirer.prompt([
+        askShouldPrintConfig,
+      ]);
+      if (shouldPrintConfig) {
+        this.log("");
+        this.printConfig(config);
+      }
+    }
+
+    this.exit(0);
+  }
+
+  printConfig({
+    headers,
+    endpoint,
+    query,
+    rateLimit,
+    concurrencyLimit,
+    duration,
+    numberRequests,
+  }: any) {
+    this.log("graphql-loadtest-cli \\");
+    if (headers) {
+      for (const [key, value] of Object.entries(headers)) {
+        this.log(`\t-H="${key}: ${value}" \\`);
+      }
+    }
+    endpoint && this.log(`\t-e="${endpoint}" \\`);
+    query &&
+      this.log(
+        `\t-q="${query
+          .replace(/\n/g, "")
+          .replace(/'/g, '"')
+          .replace(/"/g, '\\"')}" \\`
+      );
+    rateLimit && this.log(`\t-r=${rateLimit} \\`);
+    concurrencyLimit && this.log(`\t-c=${concurrencyLimit} \\`);
+    duration && this.log(`\t-c=${duration} \\`);
+    numberRequests && this.log(`\t-n=${numberRequests} \\`);
+  }
+
+  printTable(...args: any) {
+    const table = new Table({
+      chars: {
+        top: "",
+        "top-mid": "",
+        "top-left": "",
+        "top-right": "",
+        bottom: "",
+        "bottom-mid": "",
+        "bottom-left": "",
+        "bottom-right": "",
+        left: "",
+        "left-mid": "",
+        mid: "",
+        "mid-mid": "",
+        right: "",
+        "right-mid": "",
+        middle: " ",
+      },
+      colors: false,
+      style: {
+        head: [],
+      },
+    });
+    table.push(...args);
+    this.log(table.toString());
   }
 }
 
-function printTable(...args: any) {
-  const table = new Table({
-    chars: {
-      top: "",
-      "top-mid": "",
-      "top-left": "",
-      "top-right": "",
-      bottom: "",
-      "bottom-mid": "",
-      "bottom-left": "",
-      "bottom-right": "",
-      left: "",
-      "left-mid": "",
-      mid: "",
-      "mid-mid": "",
-      right: "",
-      "right-mid": "",
-      middle: " ",
-    },
-    colors: false,
-    style: {
-      head: [],
-    },
-  });
-  table.push(...args);
-  console.log(table.toString());
-}
 export = GraphqlLoadtestCli;
