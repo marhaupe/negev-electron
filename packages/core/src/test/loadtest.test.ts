@@ -1,7 +1,7 @@
 import { executeLoadtest } from '../loadtest';
 import fetchMock from 'fetch-mock';
 
-describe('tests execute', () => {
+describe('tests execute happy path', () => {
   beforeEach(() => {
     fetchMock.reset();
   });
@@ -25,5 +25,32 @@ describe('tests execute', () => {
       rateLimit: 190,
     });
     expect(result.errorDistribution.successCount).toEqual(200);
+  });
+
+  beforeEach(() => {
+    fetchMock.reset();
+  });
+
+  it('tests that duration is respected', async () => {
+    fetchMock.post('http://marhaupe.test/query', JSON.stringify({ data: {} }));
+    const result = await executeLoadtest({
+      endpoint: 'http://marhaupe.test/query',
+      query: '{ books { author } }',
+      duration: 2,
+    });
+    expect(result.totalDuration).toBeGreaterThanOrEqual(2000);
+  });
+
+  it('tests that duration and rateLimit is respected ', async () => {
+    fetchMock.post('http://marhaupe.test/query', JSON.stringify({ data: {} }));
+    const result = await executeLoadtest({
+      endpoint: 'http://marhaupe.test/query',
+      query: '{ books { author } }',
+      duration: 2,
+      rateLimit: 50,
+    });
+
+    expect(result.totalDuration).toBeGreaterThanOrEqual(2000);
+    expect(result.totalRequests).toBeGreaterThanOrEqual(100);
   });
 });
