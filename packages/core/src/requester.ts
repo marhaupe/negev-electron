@@ -45,7 +45,7 @@ abstract class Requester {
 export class DurationRequester extends Requester {
   async sendRequests(duration: number): Promise<void> {
     const getTotalDuration = timeSpan();
-    for (let i = 0; i < Infinity; i++) {
+    while (true) {
       const getChunkDuration = timeSpan();
       const numberRequestsForCurrentChunk = this.rateLimit ? this.rateLimit : Infinity;
       for (let j = 0; j < numberRequestsForCurrentChunk; j++) {
