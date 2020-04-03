@@ -183,7 +183,7 @@ const askConcurrencyLimit = {
   type: "number",
   name: "concurrencyLimit",
   default: DEFAULT_CONCURRENCY_LIMIT,
-  message: "How many concurrent requests should I send at most?",
+  message: "How many workers should concurrently send requests?",
   validate: validateNumber,
 };
 
