@@ -50,7 +50,7 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
 
   const end = timeSpan();
 
-  let queryResults: QueryResult[] = [];
+  let queryResults: (QueryResult | Error)[] = [];
   if ((config as DurationLoadtestConfig).duration) {
     queryResults = await executeDurationLoadtest(config, request);
   } else {
@@ -65,19 +65,19 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
 async function executeDurationLoadtest(
   { concurrencyLimit = DEFAULT_CONCURRENCY_LIMIT, duration = DEFAULT_DURATION, rateLimit }: DurationLoadtestConfig,
   request: Request
-): Promise<QueryResult[]> {
-  const workerPromises: Promise<QueryResult[]>[] = [];
+): Promise<(QueryResult | Error)[]> {
+  const workerPromises: Promise<(QueryResult | Error)[]>[] = [];
   for (let i = 0; i < concurrencyLimit; i++) {
     workerPromises.push(
       (async () => {
         const requester = new DurationRequester(request, rateLimit && Math.round(rateLimit / concurrencyLimit));
         await requester.sendRequests(duration);
-        return requester.getResolvedRequests();
+        return await requester.getPendingRequests();
       })()
     );
   }
 
-  return Promise.all(workerPromises).then(nestedQueryResults => nestedQueryResults.flat(1));
+  return await Promise.all(workerPromises).then(nestedPromises => nestedPromises.flat(1));
 }
 
 async function executeNumberRequestsLoadtest(
@@ -87,17 +87,17 @@ async function executeNumberRequestsLoadtest(
     rateLimit,
   }: NumberRequestsLoadtestConfig,
   request: Request
-): Promise<QueryResult[]> {
-  const workerPromises: Promise<QueryResult[]>[] = [];
+): Promise<(QueryResult | Error)[]> {
+  const workerPromises: Promise<(QueryResult | Error)[]>[] = [];
   for (let i = 0; i < concurrencyLimit; i++) {
     workerPromises.push(
       (async () => {
         const requester = new NumberRequestsRequester(request, rateLimit && Math.round(rateLimit / concurrencyLimit));
         await requester.sendRequests(Math.round(numberRequests / concurrencyLimit));
-        return requester.getResolvedRequests();
+        return await requester.getPendingRequests();
       })()
     );
   }
 
-  return Promise.all(workerPromises).then(nestedQueryResults => nestedQueryResults.flat(1));
+  return await Promise.all(workerPromises).then(nestedPromises => nestedPromises.flat(1));
 }

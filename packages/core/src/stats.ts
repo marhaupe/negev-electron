@@ -1,5 +1,3 @@
-// Our output should look similar to the one of `hey`:
-
 import { Stats, QueryResult } from './types';
 import {
   calculateTotalDuration,
@@ -11,19 +9,23 @@ import {
   calculateLatencyDistribution,
   calculateErrorDistribution,
 } from './calculator';
+import { isError } from './__utils__';
 
-export function collectStats(responses: QueryResult[], totalDuration: number): Stats {
+export function collectStats(responses: (QueryResult | Error)[], totalDuration: number): Stats {
+  const errors = responses.filter(response => isError(response)) as Error[];
+  const queryResults = responses.filter(response => !isError(response)) as QueryResult[];
+
   const totalRequests = responses.length;
-  const combinedDuration = calculateTotalDuration(responses);
+  const combinedDuration = calculateTotalDuration(queryResults);
   const averageDurationPerRequest = calculateAverageDuration(combinedDuration, totalRequests);
 
-  const minDurationPerRequest = findFastestRequest(responses);
-  const maxDurationPerRequest = findSlowestRequest(responses);
+  const minDurationPerRequest = findFastestRequest(queryResults);
+  const maxDurationPerRequest = findSlowestRequest(queryResults);
   const requestsPerSecond = calculateRequestsPerSecond(totalRequests, totalDuration);
 
-  const histogram = calculateHistogram(responses);
-  const latencyDistribution = calculateLatencyDistribution(responses);
-  const errorDistribution = calculateErrorDistribution(responses);
+  const histogram = calculateHistogram(queryResults);
+  const latencyDistribution = calculateLatencyDistribution(queryResults);
+  const errorDistribution = calculateErrorDistribution(queryResults, errors);
 
   return {
     totalRequests,

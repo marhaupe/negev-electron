@@ -1,44 +1,34 @@
 import { Request } from 'node-fetch';
 import { QueryResult } from './types';
-import { isError, sleep } from './__utils__';
+import { sleep } from './__utils__';
 import { executeQuery } from './query';
 import timeSpan from 'time-span';
 
 abstract class Requester {
-  request: Request;
-  resolvedRequests: QueryResult[];
-  rejectedRequests: Error[];
-  rateLimit: number | undefined;
+  protected request: Request;
+  protected rateLimit: number | undefined;
+  protected pendingRequests: Promise<QueryResult | Error>[];
 
   constructor(request: Request, rateLimit?: number) {
     this.request = request;
     this.rateLimit = rateLimit;
-    this.resolvedRequests = [];
-    this.rejectedRequests = [];
+    this.pendingRequests = [];
   }
 
   protected async sendSingleRequest() {
-    await executeQuery(this.request)
-      .then(response => {
-        if (isError(response)) {
-          this.rejectedRequests.push(response as Error);
-        } else {
-          this.resolvedRequests.push(response as QueryResult);
-        }
-        return response;
-      })
-      .catch(error => {
-        this.rejectedRequests.push(error as Error);
-        return error;
-      });
+    this.pendingRequests.push(
+      await executeQuery(this.request)
+        .then(response => {
+          return response;
+        })
+        .catch(error => {
+          return error;
+        })
+    );
   }
 
-  public getResolvedRequests(): QueryResult[] {
-    return this.resolvedRequests;
-  }
-
-  public getRejectedRequests(): Error[] {
-    return this.rejectedRequests;
+  public async getPendingRequests() {
+    return Promise.all(this.pendingRequests);
   }
 }
 

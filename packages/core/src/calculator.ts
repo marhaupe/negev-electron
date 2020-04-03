@@ -100,7 +100,6 @@ export function findNearestBucket(histogram: Histogram, duration: number): numbe
 
 export function calculateLatencyDistribution(responses: QueryResult[]): LatencyDistribution {
   const sortedResponses = responses.sort((a, b) => a.duration - b.duration);
-
   const tenthPercentile = getIndexForPercentile(0.1, sortedResponses.length);
   const twentyFifthPercentile = getIndexForPercentile(0.25, sortedResponses.length);
   const seventyFifthPercentile = getIndexForPercentile(0.5, sortedResponses.length);
@@ -110,13 +109,13 @@ export function calculateLatencyDistribution(responses: QueryResult[]): LatencyD
   const ninetyNinthPercentile = getIndexForPercentile(0.99, sortedResponses.length);
 
   return {
-    '10': sortedResponses[tenthPercentile].duration,
-    '25': sortedResponses[twentyFifthPercentile].duration,
-    '50': sortedResponses[fiftithPercentile].duration,
-    '75': sortedResponses[seventyFifthPercentile].duration,
-    '90': sortedResponses[ninetithPercentile].duration,
-    '95': sortedResponses[ninetyFifthPercentile].duration,
-    '99': sortedResponses[ninetyNinthPercentile].duration,
+    '10': sortedResponses[tenthPercentile]?.duration,
+    '25': sortedResponses[twentyFifthPercentile]?.duration,
+    '50': sortedResponses[fiftithPercentile]?.duration,
+    '75': sortedResponses[seventyFifthPercentile]?.duration,
+    '90': sortedResponses[ninetithPercentile]?.duration,
+    '95': sortedResponses[ninetyFifthPercentile]?.duration,
+    '99': sortedResponses[ninetyNinthPercentile]?.duration,
   };
 }
 
@@ -124,9 +123,11 @@ function getIndexForPercentile(percentile: number, length: number): number {
   return Math.floor(percentile * (length + 1));
 }
 
-export function calculateErrorDistribution(responses: QueryResult[]): ErrorDistribution {
-  const errorCount = responses.filter(response => response.errors || response.statusCode !== 200).length;
-  const successCount = responses.length - errorCount;
+export function calculateErrorDistribution(responses: QueryResult[], errors: Error[]): ErrorDistribution {
+  let errorCount = responses.filter(response => response.errors || response.statusCode !== 200).length;
+  errorCount += errors.length;
+
+  const successCount = responses.length + errors.length - errorCount;
   const errorDistribution: ErrorDistribution = {
     errorCount,
     successCount,
