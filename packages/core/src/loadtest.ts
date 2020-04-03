@@ -70,7 +70,7 @@ async function executeDurationLoadtest(
   for (let i = 0; i < concurrencyLimit; i++) {
     workerPromises.push(
       (async () => {
-        const requester = new DurationRequester(request, rateLimit);
+        const requester = new DurationRequester(request, rateLimit && Math.round(rateLimit / concurrencyLimit));
         await requester.sendRequests(duration);
         return requester.getResolvedRequests();
       })()
@@ -92,7 +92,7 @@ async function executeNumberRequestsLoadtest(
   for (let i = 0; i < concurrencyLimit; i++) {
     workerPromises.push(
       (async () => {
-        const requester = new NumberRequestsRequester(request, rateLimit);
+        const requester = new NumberRequestsRequester(request, rateLimit && Math.round(rateLimit / concurrencyLimit));
         await requester.sendRequests(Math.round(numberRequests / concurrencyLimit));
         return requester.getResolvedRequests();
       })()
