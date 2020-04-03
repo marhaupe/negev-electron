@@ -121,7 +121,7 @@ export function calculateLatencyDistribution(responses: QueryResult[]): LatencyD
 }
 
 function getIndexForPercentile(percentile: number, length: number): number {
-  return Math.round(percentile * (length + 1));
+  return Math.floor(percentile * (length + 1));
 }
 
 export function calculateErrorDistribution(responses: QueryResult[]): ErrorDistribution {
