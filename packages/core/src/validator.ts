@@ -1,11 +1,17 @@
-import { NumberRequestsLoadtestConfig, DurationLoadtestConfig } from './types';
+import { NumberRequestsLoadtestConfig, DurationLoadtestConfig, QueryResult } from './types';
+import { executeQuery } from './query';
+import { Request } from 'node-fetch';
+import { isError } from './__utils__';
 
 type ValidationResult = {
   isValid: boolean;
   reason?: string;
 };
 
-export function validateConfig(config: NumberRequestsLoadtestConfig & DurationLoadtestConfig): ValidationResult {
+export async function validateConfig(
+  config: NumberRequestsLoadtestConfig & DurationLoadtestConfig,
+  request: Request
+): Promise<ValidationResult> {
   if (config.duration && !numberIsValid(config.duration)) {
     return {
       isValid: false,
@@ -28,6 +34,21 @@ export function validateConfig(config: NumberRequestsLoadtestConfig & DurationLo
     return {
       isValid: false,
       reason: 'numberRequests may not be smaller than rateLimit',
+    };
+  }
+
+  const queryResult = await executeQuery(request);
+  const errors = (queryResult as QueryResult).errors;
+  if (errors) {
+    return {
+      isValid: false,
+      reason: 'query returned errors: ' + errors,
+    };
+  }
+  if (isError(queryResult)) {
+    return {
+      isValid: false,
+      reason: 'request failed: ' + (queryResult as Error).message,
     };
   }
 

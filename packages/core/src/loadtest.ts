@@ -33,11 +33,6 @@ export function executeStreamingLoadtest(
 }
 
 export async function executeLoadtest(config: Config, _stream?: Stream.Readable): Promise<Stats> {
-  const validationResult = validateConfig(config);
-  if (!validationResult.isValid) {
-    throw new Error(validationResult.reason);
-  }
-
   const { endpoint, query, headers = {} } = config;
   const request = new Request(endpoint, {
     method: 'POST',
@@ -47,6 +42,11 @@ export async function executeLoadtest(config: Config, _stream?: Stream.Readable)
     },
     body: JSON.stringify({ query }),
   });
+
+  const validationResult = await validateConfig(config, request);
+  if (!validationResult.isValid) {
+    throw new Error(validationResult.reason);
+  }
 
   const end = timeSpan();
 
