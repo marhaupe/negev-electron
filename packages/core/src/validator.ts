@@ -37,10 +37,19 @@ export function validateConfig(config: NumberRequestsLoadtestConfig & DurationLo
 }
 
 function numberIsValid(num: number) {
+  if (isNaN(num)) {
+    return false;
+  }
+  if (typeof num !== 'number') {
+    return false;
+  }
   if (!Number.isInteger(num)) {
     return false;
   }
-  if (num < 0) {
+  if (num <= 0) {
+    return false;
+  }
+  if (num >= Number.MAX_SAFE_INTEGER) {
     return false;
   }
   return true;
