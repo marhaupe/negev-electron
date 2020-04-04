@@ -1,11 +1,11 @@
 import { QueryResult, Histogram, LatencyDistribution, ErrorDistribution } from './types';
 
 export function findFastestRequest(responses: QueryResult[]): number {
-  return Math.min(...responses.map(response => response.duration));
+  return Math.min(...responses.map((response) => response.duration));
 }
 
 export function findSlowestRequest(responses: QueryResult[]): number {
-  return Math.max(...responses.map(response => response.duration));
+  return Math.max(...responses.map((response) => response.duration));
 }
 
 export function calculateAverageDuration(combinedDuration: number, durationCount: number): number {
@@ -14,7 +14,7 @@ export function calculateAverageDuration(combinedDuration: number, durationCount
 
 export function calculateTotalDuration(responses: QueryResult[]): number {
   let combinedDuration = 0;
-  responses.forEach(response => (combinedDuration += response.duration));
+  responses.forEach((response) => (combinedDuration += response.duration));
   return combinedDuration;
 }
 
@@ -55,7 +55,7 @@ export function calculateHistogram(responses: QueryResult[]): Histogram {
     histogram[fastest + bucketSize * i] = 0;
   }
 
-  responses.forEach(response => {
+  responses.forEach((response) => {
     const nearestBucket = findNearestBucket(histogram, response.duration);
     if (isNaN(nearestBucket)) {
       console.warn(
@@ -71,9 +71,9 @@ export function calculateHistogram(responses: QueryResult[]): Histogram {
 }
 
 export function findNearestBucket(histogram: Histogram, duration: number): number {
-  const buckets = Object.keys(histogram).map(bucket => parseInt(bucket, 10));
+  const buckets = Object.keys(histogram).map((bucket) => parseInt(bucket, 10));
 
-  if (buckets.find(bucket => bucket === duration)) {
+  if (buckets.find((bucket) => bucket === duration)) {
     return duration;
   }
 
@@ -85,7 +85,7 @@ export function findNearestBucket(histogram: Histogram, duration: number): numbe
     return buckets[buckets.length - 1];
   }
 
-  let indexOfLargerBucket = buckets.findIndex(bucket => bucket > duration);
+  let indexOfLargerBucket = buckets.findIndex((bucket) => bucket > duration);
   let indexOfSmallerBucket = indexOfLargerBucket - 1;
 
   const slowerDuration = buckets[indexOfLargerBucket];
@@ -109,13 +109,13 @@ export function calculateLatencyDistribution(responses: QueryResult[]): LatencyD
   const ninetyNinthPercentile = getIndexForPercentile(0.99, sortedResponses.length);
 
   return {
-    '10': sortedResponses[tenthPercentile]?.duration,
-    '25': sortedResponses[twentyFifthPercentile]?.duration,
-    '50': sortedResponses[fiftithPercentile]?.duration,
-    '75': sortedResponses[seventyFifthPercentile]?.duration,
-    '90': sortedResponses[ninetithPercentile]?.duration,
-    '95': sortedResponses[ninetyFifthPercentile]?.duration,
-    '99': sortedResponses[ninetyNinthPercentile]?.duration,
+    '10': sortedResponses[tenthPercentile] && sortedResponses[tenthPercentile].duration,
+    '25': sortedResponses[twentyFifthPercentile] && sortedResponses[twentyFifthPercentile].duration,
+    '50': sortedResponses[fiftithPercentile] && sortedResponses[fiftithPercentile].duration,
+    '75': sortedResponses[seventyFifthPercentile] && sortedResponses[seventyFifthPercentile].duration,
+    '90': sortedResponses[ninetithPercentile] && sortedResponses[ninetithPercentile].duration,
+    '95': sortedResponses[ninetyFifthPercentile] && sortedResponses[ninetyFifthPercentile].duration,
+    '99': sortedResponses[ninetyNinthPercentile] && sortedResponses[ninetyNinthPercentile].duration,
   };
 }
 
@@ -124,7 +124,7 @@ function getIndexForPercentile(percentile: number, length: number): number {
 }
 
 export function calculateErrorDistribution(responses: QueryResult[], errors: Error[]): ErrorDistribution {
-  let errorCount = responses.filter(response => response.errors || response.statusCode !== 200).length;
+  let errorCount = responses.filter((response) => response.errors || response.statusCode !== 200).length;
   errorCount += errors.length;
 
   const successCount = responses.length + errors.length - errorCount;

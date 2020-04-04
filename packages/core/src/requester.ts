@@ -18,10 +18,10 @@ abstract class Requester {
   protected async sendSingleRequest() {
     this.pendingRequests.push(
       await executeQuery(this.request)
-        .then(response => {
+        .then((response) => {
           return response;
         })
-        .catch(error => {
+        .catch((error) => {
           return error;
         })
     );

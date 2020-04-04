@@ -63,13 +63,13 @@ describe('tests get histogram', () => {
 
   it('tests a with random sets and makes sure that outputs seem valid', () => {
     function expectNotNaN(input: Histogram) {
-      Object.values(input).forEach(count => {
+      Object.values(input).forEach((count) => {
         expect(count).not.toBeNaN();
       });
     }
     function expectValidTotal(responses: QueryResult[], input: Histogram) {
       let total = 0;
-      Object.values(input).forEach(count => (total += count));
+      Object.values(input).forEach((count) => (total += count));
       expect(total).toEqual(responses.length);
     }
 

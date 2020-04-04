@@ -24,7 +24,7 @@ export function executeStreamingLoadtest(
     read(_size) {},
   });
 
-  executeLoadtest(config, stream).catch(error => {
+  executeLoadtest(config, stream).catch((error) => {
     stream.emit('error', error);
     stream.push(null);
   });
@@ -77,7 +77,7 @@ async function executeDurationLoadtest(
     );
   }
 
-  return await Promise.all(workerPromises).then(nestedPromises => nestedPromises.flat(1));
+  return await Promise.all(workerPromises).then((nestedPromises) => nestedPromises.flat(1));
 }
 
 async function executeNumberRequestsLoadtest(
@@ -99,5 +99,5 @@ async function executeNumberRequestsLoadtest(
     );
   }
 
-  return await Promise.all(workerPromises).then(nestedPromises => nestedPromises.flat(1));
+  return await Promise.all(workerPromises).then((nestedPromises) => nestedPromises.flat(1));
 }
