@@ -1,6 +1,5 @@
 import { Stats, QueryResult } from './types';
 import {
-  calculateTotalDuration,
   calculateAverageDuration,
   findFastestRequest,
   findSlowestRequest,
@@ -16,9 +15,7 @@ export function collectStats(responses: (QueryResult | Error)[], totalDuration: 
   const queryResults = responses.filter((response) => !isError(response)) as QueryResult[];
 
   const totalRequests = responses.length;
-  const combinedDuration = calculateTotalDuration(queryResults);
-  const average = calculateAverageDuration(combinedDuration, totalRequests);
-
+  const average = calculateAverageDuration(queryResults);
   const fastest = findFastestRequest(queryResults);
   const slowest = findSlowestRequest(queryResults);
   const requestsPerSecond = calculateRequestsPerSecond(totalRequests, totalDuration);

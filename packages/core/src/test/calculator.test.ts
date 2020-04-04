@@ -1,20 +1,10 @@
 import {
-  calculateSum,
-  calculateAverage,
   calculateRequestsPerSecond,
   calculateHistogram,
   findNearestBucket,
+  calculateLatencyDistribution,
 } from '../calculator';
-import { QueryResult, Histogram } from 'types';
-
-it('tests calculate sum', () => {
-  expect(calculateSum([1, 2, 3, 4, 5])).toEqual(15);
-});
-
-it('tests calculate average', () => {
-  expect(calculateAverage([1, 4, 1, 4])).toEqual(2.5);
-  expect(calculateAverage([1.005])).toEqual(1.01);
-});
+import { QueryResult, Histogram } from '../types';
 
 it('tests calculate requestsPerSecond', () => {
   expect(calculateRequestsPerSecond(10, 2000)).toEqual(5);
@@ -114,6 +104,36 @@ describe('tests get histogram', () => {
     expect(findNearestBucket(histogram, 14)).toEqual(10);
     expect(findNearestBucket(histogram, 15)).toEqual(20);
     expect(findNearestBucket(histogram, 16)).toEqual(20);
+  });
+});
+
+describe('tests getLatencyDistibution', () => {
+  it('with one value', () => {
+    const input = [buildMockResponse(1)];
+    const expected = {
+      10: 1,
+      25: 1,
+      50: 1,
+      75: 1,
+      90: 1,
+      95: 1,
+      99: 1,
+    };
+    expect(calculateLatencyDistribution(input)).toEqual(expected);
+  });
+
+  it('with two values', () => {
+    const input = [buildMockResponse(1), buildMockResponse(2)];
+    const expected = {
+      10: 1.01,
+      25: 1.25,
+      50: 1.05,
+      75: 1.75,
+      90: 1.9,
+      95: 1.95,
+      99: 1.99,
+    };
+    expect(calculateLatencyDistribution(input)).toEqual(expected);
   });
 });
 

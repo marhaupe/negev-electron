@@ -8,8 +8,10 @@ export function findSlowestRequest(responses: QueryResult[]): number {
   return Math.max(...responses.map((response) => response.duration));
 }
 
-export function calculateAverageDuration(combinedDuration: number, durationCount: number): number {
-  return roundDecimalPlaces(((combinedDuration / durationCount) * 100) / 100, 2);
+export function calculateAverageDuration(responses: QueryResult[]): number {
+  let combinedDuration = 0;
+  responses.forEach((response) => (combinedDuration += response.duration));
+  return roundDecimalPlaces(combinedDuration / responses.length, 2);
 }
 
 export function calculateTotalDuration(responses: QueryResult[]): number {
@@ -21,14 +23,6 @@ export function calculateTotalDuration(responses: QueryResult[]): number {
 function roundDecimalPlaces(num: number, count: number) {
   const x = Math.pow(10, count);
   return Math.round((num + Number.EPSILON) * x) / x;
-}
-
-export function calculateSum(args: number[]) {
-  return args.reduce((accumulator, current) => accumulator + current);
-}
-
-export function calculateAverage(args: number[]) {
-  return roundDecimalPlaces(calculateSum(args) / args.length, 2);
 }
 
 export function calculateRequestsPerSecond(requestCount: number, durationMS: number): number {
@@ -99,28 +93,35 @@ export function findNearestBucket(histogram: Histogram, duration: number): numbe
 }
 
 export function calculateLatencyDistribution(responses: QueryResult[]): LatencyDistribution {
-  const sortedResponses = responses.sort((a, b) => a.duration - b.duration);
-  const tenthPercentile = getIndexForPercentile(0.1, sortedResponses.length);
-  const twentyFifthPercentile = getIndexForPercentile(0.25, sortedResponses.length);
-  const seventyFifthPercentile = getIndexForPercentile(0.5, sortedResponses.length);
-  const fiftithPercentile = getIndexForPercentile(0.5, sortedResponses.length);
-  const ninetithPercentile = getIndexForPercentile(0.9, sortedResponses.length);
-  const ninetyFifthPercentile = getIndexForPercentile(0.95, sortedResponses.length);
-  const ninetyNinthPercentile = getIndexForPercentile(0.99, sortedResponses.length);
+  const sortedResponses = responses.map((response) => response.duration).sort((a, b) => a - b);
+  const tenthPercentile = getPercentile(1, sortedResponses);
+  const twentyFifthPercentile = getPercentile(25, sortedResponses);
+  const fiftithPercentile = getPercentile(5, sortedResponses);
+  const seventyFifthPercentile = getPercentile(75, sortedResponses);
+  const ninetithPercentile = getPercentile(90, sortedResponses);
+  const ninetyFifthPercentile = getPercentile(95, sortedResponses);
+  const ninetyNinthPercentile = getPercentile(99, sortedResponses);
 
-  return {
-    '10': sortedResponses[tenthPercentile] && sortedResponses[tenthPercentile].duration,
-    '25': sortedResponses[twentyFifthPercentile] && sortedResponses[twentyFifthPercentile].duration,
-    '50': sortedResponses[fiftithPercentile] && sortedResponses[fiftithPercentile].duration,
-    '75': sortedResponses[seventyFifthPercentile] && sortedResponses[seventyFifthPercentile].duration,
-    '90': sortedResponses[ninetithPercentile] && sortedResponses[ninetithPercentile].duration,
-    '95': sortedResponses[ninetyFifthPercentile] && sortedResponses[ninetyFifthPercentile].duration,
-    '99': sortedResponses[ninetyNinthPercentile] && sortedResponses[ninetyNinthPercentile].duration,
+  const distribution: LatencyDistribution = {
+    [10]: tenthPercentile,
+    [25]: twentyFifthPercentile,
+    [50]: fiftithPercentile,
+    [75]: seventyFifthPercentile,
+    [90]: ninetithPercentile,
+    [95]: ninetyFifthPercentile,
+    [99]: ninetyNinthPercentile,
   };
+  return distribution;
 }
 
-function getIndexForPercentile(percentile: number, length: number): number {
-  return Math.floor(percentile * (length + 1));
+function getPercentile(percentile: number, array: number[]): number {
+  const index = (percentile / 100) * (array.length - 1);
+  const flooredIndex = Math.floor(index);
+  if (Math.floor(index) == index) {
+    return array[index];
+  }
+  const fraction = index - flooredIndex;
+  return array[flooredIndex] + (array[flooredIndex + 1] - array[flooredIndex]) * fraction;
 }
 
 export function calculateErrorDistribution(responses: QueryResult[], errors: Error[]): ErrorDistribution {
