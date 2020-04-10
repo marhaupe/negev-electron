@@ -356,6 +356,13 @@ class GraphqlLoadtestCli extends Command {
 
     this.log("");
 
+    this.log("Histogram:");
+    Object.keys(loadtestResult.histogram).forEach((bucket) => {
+      this.log(`  ${bucket}ms: ${loadtestResult.histogram[Number(bucket)]}`);
+    });
+
+    this.log("");
+
     this.log("Latency Distribution:");
     this.log("  10% in " + loadtestResult.latencyDistribution[10] + " ms");
     this.log("  25% in " + loadtestResult.latencyDistribution[25] + " ms");
