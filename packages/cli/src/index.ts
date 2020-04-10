@@ -373,6 +373,7 @@ class GraphqlLoadtestCli extends Command {
       { Errors: loadtestResult.errorDistribution.errorCount }
     );
 
+    const { flags } = this.parse(GraphqlLoadtestCli);
     if (Object.keys(flags).length === 0) {
       this.log("");
       const { shouldPrintConfig } = await inquirer.prompt({
@@ -403,21 +404,21 @@ class GraphqlLoadtestCli extends Command {
     this.log("graphql-loadtest-cli \\");
     if (headers) {
       for (const [key, value] of Object.entries(headers)) {
-        this.log(`\t-H="${key}: ${value}" \\`);
+        this.log(`  -H="${key}: ${value}" \\`);
       }
     }
-    endpoint && this.log(`\t-e="${endpoint}" \\`);
+    endpoint && this.log(`  -e="${endpoint}" \\`);
     query &&
       this.log(
-        `\t-q="${query
+        `  -q="${query
           .replace(/\n/g, "")
           .replace(/'/g, '"')
           .replace(/"/g, '\\"')}" \\`
       );
-    rateLimit && this.log(`\t-r=${rateLimit} \\`);
-    concurrencyLimit && this.log(`\t-c=${concurrencyLimit} \\`);
-    duration && this.log(`\t-c=${duration} \\`);
-    numberRequests && this.log(`\t-n=${numberRequests} \\`);
+    rateLimit && this.log(`  -r=${rateLimit} \\`);
+    concurrencyLimit && this.log(`  -c=${concurrencyLimit} \\`);
+    duration && this.log(`  -c=${duration} \\`);
+    numberRequests && this.log(`  -n=${numberRequests} \\`);
   }
 
   printTable(...args: any) {
