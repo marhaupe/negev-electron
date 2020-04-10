@@ -15,71 +15,9 @@ import {
 } from "graphql-loadtest";
 import ora from "ora";
 import Table from "cli-table";
-
-function validateNumber(input: string): true | string {
-  try {
-    const num = parseInt(input, 10);
-    if (isNaN(num)) {
-      return "Please enter an integer";
-    }
-    if (typeof num !== "number") {
-      return "Please enter an integer";
-    }
-    if (num <= 0) {
-      return "Please enter a value greater than zero.";
-    }
-    if (num >= Number.MAX_SAFE_INTEGER) {
-      return "Please enter a smaller value.";
-    }
-    return true;
-  } catch {
-    return "Please enter an integer";
-  }
-}
-
-const askEndpoint = {
-  type: "text",
-  name: "endpoint",
-  message: "What URL should I loadtest for you?",
-  default: "http://localhost:4000",
-  validate: async function validateURL(url: string): Promise<true | string> {
-    return fetch(url)
-      .then((response) => {
-        if (response.status === 404) {
-          return "Invalid URL: 404";
-        }
-        return true;
-      })
-      .catch((error) => {
-        return "Invalid URL: " + error.toString();
-      });
-  },
-};
-
-const askShouldAskHeaders = {
-  type: "confirm",
-  name: "shouldAskHeaders",
-  message: "Do you want to set any headers?",
-  default: false,
-};
-
-const askHeaders = {
-  type: "editor",
-  name: "headers",
-  default:
-    "# Example:\n" +
-    "# Content-Type: application/json\n" +
-    "# Authorization: Basic d2lraTpwZWRpYQ==\n",
-  message: "Which headers does your query need?",
-  when: (answers: any): boolean => answers.shouldAskHeaders,
-  filter: (input: string): any => {
-    let lines = input.split("\n");
-    lines = lines
-      .filter((line) => !line.startsWith("#"))
-      .filter((line) => line.trim().length !== 0);
-    return parseHeader(lines);
-  },
-};
+import { from } from "rxjs";
+import * as path from "path";
+import * as fs from "fs-extra";
 
 function parseHeader(input: string[]): Record<string, string> {
   const headers: Record<string, string> = {};
@@ -91,109 +29,6 @@ function parseHeader(input: string[]): Record<string, string> {
   });
   return headers;
 }
-
-const askQuery = {
-  type: "editor",
-  name: "query",
-  default:
-    "# Example query:\n" +
-    "{ \n" +
-    "  books { \n" +
-    "    author \n" +
-    "  } \n" +
-    "}\n",
-  message: "What query should I loadtest for you?",
-  validate: async function validateQuery(
-    query: string,
-    answers: Record<string, any>
-  ): Promise<true | string> {
-    // Removes non-breaking spaces such as \u00A0
-    query = query.replace(/\u00A0+/g, " ");
-
-    const response = await fetch(answers.endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...answers?.headers,
-      },
-      body: JSON.stringify({ query: introspectionQuery }),
-    });
-
-    const { data } = await response.json();
-    const schema = buildClientSchema(data);
-    const queryDocument = parse(query);
-    const errors = validate(schema, queryDocument);
-    if (errors && errors.length > 0) {
-      return errors[0].message;
-    }
-    return true;
-  },
-};
-
-enum LoadTestType {
-  numberRequests = "I want to set a fixed number of requests.",
-  duration = "I want to run the loadtest for a specified duration.",
-}
-
-const askLoadtestType = {
-  type: "list",
-  name: "loadtestType",
-  message: "Which type of loadtest do you want to run?",
-
-  choices: [LoadTestType.duration, LoadTestType.numberRequests],
-  default: LoadTestType.duration,
-};
-
-const askNumberRequests = {
-  type: "number",
-  name: "numberRequests",
-  default: DEFAULT_NUMBER_REQUESTS,
-  message: "How many requests do you want to send?",
-  when: (answers: any): boolean =>
-    answers.loadtestType === LoadTestType.numberRequests,
-  validate: validateNumber,
-};
-
-const askDuration = {
-  type: "number",
-  name: "duration",
-  default: DEFAULT_DURATION,
-  message: "How long (in seconds) should the loadtest take?",
-  when: (answers: any): boolean =>
-    answers.loadtestType === LoadTestType.duration,
-  validate: validateNumber,
-};
-
-const askShouldAskRateLimit = {
-  type: "confirm",
-  name: "shouldAskRateLimit",
-  message: "Do you want to limit the number of requests sent per second?",
-  default: false,
-};
-
-const askRateLimit = {
-  type: "number",
-  name: "rateLimit",
-  message: "How many queries should I send per second at most?",
-  when: (answers: any): boolean => answers.shouldAskRateLimit,
-  validate: validateNumber,
-};
-
-const askConcurrencyLimit = {
-  type: "number",
-  name: "concurrencyLimit",
-  default: DEFAULT_CONCURRENCY_LIMIT,
-  message: "How many workers should concurrently send requests?",
-  validate: validateNumber,
-};
-
-const askShouldPrintConfig = {
-  type: "confirm",
-  name: "shouldPrintConfig",
-  message:
-    "Do you want me to print the config I used? This can be useful for scripting.",
-  default: true,
-};
 
 class GraphqlLoadtestCli extends Command {
   static description = "Run loadtests against your GraphQL backend.";
@@ -237,27 +72,249 @@ class GraphqlLoadtestCli extends Command {
     }),
   };
 
-  async run() {
+  getConfigFromFlags(): Record<string, any> | null {
     const { flags } = this.parse(GraphqlLoadtestCli);
-    let config: Record<string, any> = {};
-    if (Object.keys(flags).length > 0) {
-      config = flags;
-      if (config.headers) {
-        config.headers = parseHeader(config.headers);
+    if (Object.keys(flags).length === 0) {
+      return null;
+    }
+    const config: Record<string, any> = flags;
+    if (config.headers) {
+      config.headers = parseHeader(config.headers);
+    }
+    return config;
+  }
+
+  answerFilePath = path.join(this.config.dataDir, "answers.json");
+
+  saveAnswers(answers: any) {
+    fs.ensureFileSync(this.answerFilePath);
+    fs.writeJsonSync(this.answerFilePath, answers);
+  }
+
+  readSavedAnswers() {
+    fs.ensureFileSync(this.answerFilePath);
+    return fs.readJsonSync(this.answerFilePath, { throws: false });
+  }
+
+  clearSavedAnswers() {
+    fs.removeSync(this.answerFilePath);
+  }
+
+  getQuestions() {
+    const savedAnswers = this.readSavedAnswers();
+
+    function validateNumber(input: string): true | string {
+      try {
+        const num = parseInt(input, 10);
+        if (isNaN(num)) {
+          return "Please enter an integer";
+        }
+        if (typeof num !== "number") {
+          return "Please enter an integer";
+        }
+        if (num <= 0) {
+          return "Please enter a value greater than zero.";
+        }
+        if (num >= Number.MAX_SAFE_INTEGER) {
+          return "Please enter a smaller value.";
+        }
+        return true;
+      } catch {
+        return "Please enter an integer";
       }
-    } else {
-      config = await inquirer.prompt([
-        askShouldAskHeaders,
-        askHeaders,
-        askEndpoint,
-        askQuery,
-        askLoadtestType,
-        askDuration,
-        askNumberRequests,
-        askShouldAskRateLimit,
-        askRateLimit,
-        askConcurrencyLimit,
-      ]);
+    }
+
+    const LoadTestType = {
+      numberRequests: "I want to set a fixed number of requests.",
+      duration: "I want to run the loadtest for a specified duration.",
+    };
+
+    const askEndpoint = {
+      type: "text",
+      name: "endpoint",
+      message: "What URL should I loadtest for you?",
+      default: savedAnswers?.endpoint ?? "http://localhost:4000",
+      validate: async function validateURL(
+        url: string
+      ): Promise<true | string> {
+        return fetch(url)
+          .then((response) => {
+            if (response.status === 404) {
+              return "Invalid URL: 404";
+            }
+            return true;
+          })
+          .catch((error) => {
+            return "Invalid URL: " + error.toString();
+          });
+      },
+    };
+
+    const askShouldAskHeaders = {
+      type: "confirm",
+      name: "shouldAskHeaders",
+      message: "Do you want to set any headers?",
+      default: savedAnswers?.shouldAskHeaders ?? false,
+    };
+
+    const askHeaders = {
+      type: "editor",
+      name: "headers",
+      default: savedAnswers?.headers
+        ? JSON.stringify(savedAnswers.headers, null, 2)
+        : "{\n" + '  "Content-Type": "application/json",\n' + "}\n",
+      message: "Which headers does your query need?",
+      when: (answers: any): boolean => answers.shouldAskHeaders,
+      filter: (input: string): any => {
+        let lines = input.split("\n");
+        lines = lines
+          .filter((line) => !line.startsWith("#"))
+          .filter((line) => line.trim().length !== 0);
+        const headersJson = lines.join("\n");
+        try {
+          return JSON.parse(headersJson);
+        } catch {
+          this.warn(
+            "error parsing headers, continuing without setting headers"
+          );
+          return {};
+        }
+      },
+    };
+
+    const askQuery = {
+      type: "editor",
+      name: "query",
+      default:
+        savedAnswers?.query ??
+        "# Example query:\n" +
+          "{ \n" +
+          "  books { \n" +
+          "    author \n" +
+          "  } \n" +
+          "}\n",
+      message: "What query should I loadtest for you?",
+      validate: async function validateQuery(
+        query: string,
+        answers: Record<string, any>
+      ): Promise<true | string> {
+        // Removes non-breaking spaces such as \u00A0
+        query = query.replace(/\u00A0+/g, " ");
+
+        const response = await fetch(answers.endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...answers?.headers,
+          },
+          body: JSON.stringify({ query: introspectionQuery }),
+        });
+
+        const { data } = await response.json();
+        const schema = buildClientSchema(data);
+        const queryDocument = parse(query);
+        const errors = validate(schema, queryDocument);
+        if (errors && errors.length > 0) {
+          return errors[0].message;
+        }
+        return true;
+      },
+    };
+
+    const askLoadtestType = {
+      type: "list",
+      name: "loadtestType",
+      message: "Which type of loadtest do you want to run?",
+
+      choices: [LoadTestType.duration, LoadTestType.numberRequests],
+      default: savedAnswers?.loadtestType ?? LoadTestType.duration,
+    };
+
+    const askNumberRequests = {
+      type: "number",
+      name: "numberRequests",
+      default: savedAnswers?.numberRequests ?? DEFAULT_NUMBER_REQUESTS,
+      message: "How many requests do you want to send?",
+      when: (answers: any): boolean =>
+        answers.loadtestType === LoadTestType.numberRequests,
+      validate: validateNumber,
+    };
+
+    const askDuration = {
+      type: "number",
+      name: "duration",
+      default: savedAnswers?.duration ?? DEFAULT_DURATION,
+      message: "How long (in seconds) should the loadtest take?",
+      when: (answers: any): boolean =>
+        answers.loadtestType === LoadTestType.duration,
+      validate: validateNumber,
+    };
+
+    const askShouldAskRateLimit = {
+      type: "confirm",
+      name: "shouldAskRateLimit",
+      message: "Do you want to limit the number of requests sent per second?",
+      default: savedAnswers?.shouldAskRateLimit ?? false,
+    };
+
+    const askRateLimit = {
+      type: "number",
+      name: "rateLimit",
+      message: "How many queries should I send per second at most?",
+      when: (answers: any): boolean => answers.shouldAskRateLimit,
+      validate: validateNumber,
+    };
+
+    const askConcurrencyLimit = {
+      type: "number",
+      name: "concurrencyLimit",
+      default: savedAnswers?.concurrencyLimit ?? DEFAULT_CONCURRENCY_LIMIT,
+      message: "How many workers should concurrently send requests?",
+      validate: validateNumber,
+    };
+
+    return [
+      askShouldAskHeaders,
+      askHeaders,
+      askEndpoint,
+      askQuery,
+      askLoadtestType,
+      askDuration,
+      askNumberRequests,
+      askShouldAskRateLimit,
+      askRateLimit,
+      askConcurrencyLimit,
+    ];
+  }
+
+  async getConfigFromPrompt(): Promise<Record<string, any>> {
+    const questions = this.getQuestions();
+    const observable = from(questions);
+
+    return new Promise((resolve, reject) => {
+      let answers: Record<string, any> = {};
+      inquirer.prompt(observable as any).ui.process.subscribe(
+        (answer) => {
+          answers[answer.name] = answer.answer;
+          this.saveAnswers(answers);
+        },
+        (err) => reject(err),
+        () => {
+          // We're clearing the saved answers because I'd rather be cautious having
+          // a persistent component in our application. Once I'm sure that things won't break
+          // without the answer being "Just go delete <file-we-store-the-answers>", I'm deleting
+          // next line since I personally like having my choices remembered.
+          this.clearSavedAnswers();
+          resolve(answers);
+        }
+      );
+    });
+  }
+
+  async run() {
+    let config = this.getConfigFromFlags();
+    if (!config) {
+      config = await this.getConfigFromPrompt();
     }
 
     const spinner = ora("Running loadtest...").start();
@@ -318,9 +375,13 @@ class GraphqlLoadtestCli extends Command {
 
     if (Object.keys(flags).length === 0) {
       this.log("");
-      const { shouldPrintConfig } = await inquirer.prompt([
-        askShouldPrintConfig,
-      ]);
+      const { shouldPrintConfig } = await inquirer.prompt({
+        type: "confirm",
+        name: "shouldPrintConfig",
+        message:
+          "Do you want me to print the config I used? This can be useful for scripting.",
+        default: true,
+      });
       if (shouldPrintConfig) {
         this.log("");
         this.printConfig(config);
