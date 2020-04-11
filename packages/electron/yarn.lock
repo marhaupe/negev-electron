@@ -5293,9 +5293,9 @@ graphql-language-service-utils@^2.3.3:
     graphql-config "2.2.1"
     graphql-language-service-types "^1.5.2"
 
-graphql-loadtest@^0.0.1-alpha.1:
+negev@^0.0.1-alpha.1:
   version "0.0.1-alpha.1"
-  resolved "https://registry.yarnpkg.com/graphql-loadtest/-/graphql-loadtest-0.0.1-alpha.1.tgz#b1f164a989a82d8eb3450bf9f422c5b93049bfa4"
+  resolved "https://registry.yarnpkg.com/negev/-/negev-0.0.1-alpha.1.tgz#b1f164a989a82d8eb3450bf9f422c5b93049bfa4"
   integrity sha512-2pEPpSIMHSE+smAqiCRIw86DSBVrlKwf6LPFmK7LbHmIUCg0U6rP89MRD3EgGv02VBXpKqV+A9t7K+1S0MTHHQ==
   dependencies:
     node-fetch "^2.6.0"

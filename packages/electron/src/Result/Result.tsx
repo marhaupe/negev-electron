@@ -1,6 +1,6 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
-import { Stats } from "graphql-loadtest";
+import { Stats } from "negev";
 import { Link } from "react-router-dom";
 import { useStore } from "../mobx/store";
 import { useObserver } from "mobx-react";
@@ -26,7 +26,7 @@ export function Result() {
                 maxWidth: "600px",
                 maxHeight: "430px",
                 width: "auto",
-                height: "auto"
+                height: "auto",
               }}
               alt="data-visualisation"
               src={"/undraw_visual_data_b1wx.png"}
@@ -65,37 +65,37 @@ const Chart = React.memo((props: ChartProps) => {
               enabled: true,
               easing: "linear",
               dynamicAnimation: {
-                speed: 1000
-              }
+                speed: 1000,
+              },
             },
             toolbar: {
-              show: false
+              show: false,
             },
             zoom: {
-              enabled: true
-            }
+              enabled: true,
+            },
           },
           dataLabels: {
-            enabled: false
+            enabled: false,
           },
           stroke: {
-            curve: "smooth"
+            curve: "smooth",
           },
           markers: {
-            size: 0
+            size: 0,
           },
           xaxis: {
-            type: "numeric"
+            type: "numeric",
           },
           legend: {
-            show: true
-          }
+            show: true,
+          },
         }}
         series={[
           {
             name: "Response time",
-            data: generateData(props.stats)
-          }
+            data: generateData(props.stats),
+          },
         ]}
         type="line"
         height="350"
@@ -159,7 +159,7 @@ function DetailedStats(props: StatsProps) {
 }
 
 function generateData(stats: Stats[]) {
-  const durations = stats.flatMap(stat => stat.responses);
+  const durations = stats.flatMap((stat) => stat.responses);
   return durations.map((duration, index) => {
     return { x: index, y: duration.duration };
   });

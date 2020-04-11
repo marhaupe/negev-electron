@@ -1,5 +1,5 @@
 {
-  "name": "graphql-loadtest-electron",
+  "name": "negev-electron",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -16,7 +16,7 @@
     "electron-is-dev": "^1.1.0",
     "graphiql": "0.17.5",
     "graphql": "^14.6.0",
-    "graphql-loadtest": "^0.0.1-alpha.1",
+    "negev": "0.0.1-alpha.3",
     "lodash": "^4.17.15",
     "mobx": "^5.15.4",
     "mobx-persist": "^0.4.1",
@@ -71,8 +71,8 @@
     "url": "https://marhaupe.de"
   },
   "build": {
-    "productName": "graphql-loadtest",
-    "appId": "com.marhaupe.graphql-loadtest",
+    "productName": "negev",
+    "appId": "com.marhaupe.negev",
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [

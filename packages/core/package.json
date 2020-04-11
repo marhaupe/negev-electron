@@ -1,12 +1,12 @@
 {
-  "name": "graphql-loadtest",
-  "version": "0.0.1-alpha.2",
+  "name": "negev",
+  "version": "0.0.1-alpha.3",
   "license": "MIT",
   "author": "marhaupe <marhaupe97@gmail.com>",
-  "homepage": "https://github.com/marhaupe/graphql-loadtest",
+  "homepage": "https://github.com/marhaupe/negev",
   "description": "loadtest your graphql servers",
   "main": "dist/index.js",
-  "module": "dist/graphql-loadtest.esm.js",
+  "module": "dist/negev.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -37,11 +37,11 @@
     "@types/sinon": "^7.5.0",
     "@types/verror": "^1.10.3",
     "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
     "fetch-mock": "^8.0.0",
     "husky": "^3.0.9",
     "prettier": "^2.0.2",
     "tsdx": "^0.13.1",
-    "eslint-plugin-prettier": "^3.1.2",
     "tslib": "^1.10.0",
     "typescript": "^3.7.2"
   },

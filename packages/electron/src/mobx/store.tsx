@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { observable } from "mobx";
 import { useLocalStore } from "mobx-react";
 import { create, persist } from "mobx-persist";
-import { FetchConfig, Stats, Phase } from "graphql-loadtest";
+import { FetchConfig, Stats, Phase } from "negev";
 
 const hydrate = create({
   storage: window.localStorage,
-  jsonify: true
+  jsonify: true,
 });
 
 export class AppStore {
@@ -14,8 +14,8 @@ export class AppStore {
     {
       pause: 0,
       duration: 5,
-      arrivalRate: 50
-    }
+      arrivalRate: 50,
+    },
   ];
 
   @persist("object") @observable fetchConfig: FetchConfig = {
@@ -24,8 +24,8 @@ export class AppStore {
     body: {
       query: "",
       variables: undefined,
-      operationName: undefined
-    }
+      operationName: undefined,
+    },
   };
 
   @persist("list") @observable stats: Stats[] = [];

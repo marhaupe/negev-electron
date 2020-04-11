@@ -12,7 +12,7 @@ import {
   DEFAULT_CONCURRENCY_LIMIT,
   DEFAULT_DURATION,
   DEFAULT_NUMBER_REQUESTS,
-} from "graphql-loadtest";
+} from "negev";
 import ora from "ora";
 import Table from "cli-table";
 import { from } from "rxjs";
@@ -33,7 +33,7 @@ function parseHeader(input: string[]): Record<string, string> {
 class GraphqlLoadtestCli extends Command {
   static description = "Run loadtests against your GraphQL backend.";
 
-  static usage = "graphql-loadtest-cli [...options]";
+  static usage = "negev-cli [...options]";
 
   static flags = {
     version: flags.version({ char: "v" }),
@@ -410,7 +410,7 @@ class GraphqlLoadtestCli extends Command {
     duration,
     numberRequests,
   }: any) {
-    this.log("graphql-loadtest-cli \\");
+    this.log("negev-cli \\");
     if (headers) {
       for (const [key, value] of Object.entries(headers)) {
         this.log(`  -H="${key}: ${value}" \\`);

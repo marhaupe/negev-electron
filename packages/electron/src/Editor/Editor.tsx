@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import GraphiQL from "graphiql";
 import fetch from "unfetch";
 import "graphiql/graphiql.css";
-import { Config } from "graphql-loadtest";
+import { Config } from "negev";
 import { Link } from "react-router-dom";
 // import "./editor.css";
 import { useStore, AppStore } from "../mobx/store";
@@ -35,7 +35,7 @@ export function Editor() {
       editorTheme="material-palenight"
     >
       <GraphiQL.Logo>
-        <img alt="graphql-loadtest icon" src={"/icon.png"} />
+        <img alt="negev icon" src={"/icon.png"} />
       </GraphiQL.Logo>
       <GraphiQL.Toolbar>
         <GraphiQL.Button
@@ -50,7 +50,7 @@ export function Editor() {
           value={store.fetchConfig.url}
           aria-label="Endpoint"
           placeholder="Endpoint"
-          onChange={event => store.setUrl(event.target.value)}
+          onChange={(event) => store.setUrl(event.target.value)}
         />
         <Link to={"/result"}>
           <GraphiQL.Button label="Result" title="Open result page" />
@@ -83,28 +83,28 @@ export function Editor() {
   function handleEditOperationName(value: any) {
     store.setBody({
       ...store.fetchConfig.body,
-      operationName: value
+      operationName: value,
     });
   }
 
   function handleEditVariables(value: any) {
     store.setBody({
       ...store.fetchConfig.body,
-      variables: value
+      variables: value,
     });
   }
 
   function handleEditQuery(value: any) {
     store.setBody({
       ...store.fetchConfig.body,
-      query: value
+      query: value,
     });
   }
 
   function handleClickExportButton() {
     ipcRenderer.send("request:saveConfig", {
       fetchConfig: store.fetchConfig,
-      phases: store.phases
+      phases: store.phases,
     });
   }
 
@@ -121,18 +121,18 @@ export function Editor() {
   async function handleFetch(graphQLParams: any) {
     if (graphQLParams.operationName === "IntrospectionQuery") {
       return defaultFetcher(store.fetchConfig.url, graphQLParams)
-        .then(data => {
+        .then((data) => {
           setKey(store.fetchConfig.url);
           return data;
         })
         .catch(() => ({
-          message: "Could not fetch schema"
+          message: "Could not fetch schema",
         }));
     }
 
     if (store.phases.length === 0) {
       return {
-        message: "Cannot run loadtest. Please configure at least one phase."
+        message: "Cannot run loadtest. Please configure at least one phase.",
       };
     }
 
@@ -151,9 +151,9 @@ async function defaultFetcher(
     method: "post",
     headers: {
       "Content-Type": "application/json",
-      ...headers
+      ...headers,
     },
-    body: JSON.stringify(graphQLParams)
+    body: JSON.stringify(graphQLParams),
   });
   return await response.json();
 }
@@ -161,7 +161,7 @@ async function defaultFetcher(
 async function loadTestFetcher(store: AppStore): Promise<void> {
   ipcRenderer.send("request:loadtestFetcher", {
     fetchConfig: toJS(store.fetchConfig),
-    phases: toJS(store.phases)
+    phases: toJS(store.phases),
   });
   return new Promise((resolve, reject) => {
     ipcRenderer.on(

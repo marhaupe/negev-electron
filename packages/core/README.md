@@ -1,17 +1,17 @@
-# graphql-loadtest
+# negev
 
 This library allows you to benchmark your graphql-backend.
 
 ## Installation
 
 ```bash
-npm install graphql-loadtest
+npm install negev
 ```
 
 ## Usage
 
 ```js
-import { executeLoadtest } from 'graphql-loadtest';
+import { executeLoadtest } from 'negev';
 
 const arrivalRate = 100;
 const duration = 2;

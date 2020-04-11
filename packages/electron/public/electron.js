@@ -5,7 +5,7 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 
-const { executeStreamingLoadtest } = require("graphql-loadtest");
+const { executeStreamingLoadtest } = require("negev");
 const { ipcMain, dialog } = require("electron");
 const fs = require("fs");
 
@@ -16,7 +16,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 680,
-    webPreferences: { nodeIntegration: true }
+    webPreferences: { nodeIntegration: true },
   });
   mainWindow.loadURL(
     isDev
@@ -49,7 +49,7 @@ function setupListeners() {
   ipcMain.on("request:loadtestFetcher", async (event, config) => {
     try {
       const stream = executeStreamingLoadtest(config);
-      stream.on("data", data =>
+      stream.on("data", (data) =>
         event.reply("response:loadtestFetcher", { data: JSON.stringify(data) })
       );
       stream.on("end", () =>
@@ -58,14 +58,14 @@ function setupListeners() {
       stream.on("close", () =>
         event.reply("response:loadtestFetcher", { close: true })
       );
-      stream.on("error", error =>
+      stream.on("error", (error) =>
         event.reply("response:loadtestFetcher", {
-          error: { error: error.toString() }
+          error: { error: error.toString() },
         })
       );
     } catch (error) {
       event.reply("response:loadtestFetcher", {
-        error: { error: error.toString() }
+        error: { error: error.toString() },
       });
     }
   });
@@ -73,11 +73,11 @@ function setupListeners() {
   ipcMain.on("request:loadConfig", async (event, config) => {
     dialog.showOpenDialog(
       {
-        defaultPath: "graphql-loadtest-config.json",
+        defaultPath: "negev-config.json",
         properties: ["openFile", "showHiddenFiles"],
-        filters: [{ name: "JSON", extensions: ["json"] }]
+        filters: [{ name: "JSON", extensions: ["json"] }],
       },
-      fileName => {
+      (fileName) => {
         if (!fileName || fileName.length === 0) {
           return;
         }
@@ -85,7 +85,7 @@ function setupListeners() {
           dialog.showMessageBox({
             type: "error",
             message: "Plase choose a single file",
-            buttons: ["OK"]
+            buttons: ["OK"],
           });
         }
 
@@ -94,7 +94,7 @@ function setupListeners() {
             dialog.showMessageBox({
               type: "error",
               message: err.message,
-              buttons: ["OK"]
+              buttons: ["OK"],
             });
             return;
           }
@@ -105,7 +105,7 @@ function setupListeners() {
             dialog.showMessageBox({
               type: "error",
               message: error,
-              buttons: ["OK"]
+              buttons: ["OK"],
             });
             return;
           }
@@ -117,20 +117,20 @@ function setupListeners() {
   ipcMain.on("request:saveConfig", async (event, config) => {
     dialog.showSaveDialog(
       {
-        defaultPath: "graphql-loadtest-config.json"
+        defaultPath: "negev-config.json",
       },
-      fileName => {
+      (fileName) => {
         if (fileName === undefined) {
           return;
         }
 
         // fileName is a string that contains the path and filename created in the save file dialog.
-        fs.writeFile(fileName, JSON.stringify(config), err => {
+        fs.writeFile(fileName, JSON.stringify(config), (err) => {
           if (err) {
             dialog.showMessageBox({
               type: "error",
               message: err.message,
-              buttons: ["OK"]
+              buttons: ["OK"],
             });
           }
         });

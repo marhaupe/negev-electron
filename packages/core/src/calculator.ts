@@ -54,7 +54,7 @@ export function calculateHistogram(responses: QueryResult[]): Histogram {
     if (isNaN(nearestBucket)) {
       console.warn(
         `The nearest histogram bucket for the duration ${response.duration} is NaN. ` +
-          `Feel free to open an issue at https://github.com/marhaupe/graphql-loadtest with the following information:\n` +
+          `Feel free to open an issue at https://github.com/marhaupe/negev with the following information:\n` +
           `Duration: ${response.duration}, Histogram: ${JSON.stringify(histogram, null, 2)}`
       );
     }
