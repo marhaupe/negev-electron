@@ -101,6 +101,8 @@ class GraphqlLoadtestCli extends Command {
   }
 
   getQuestions() {
+    inquirer.registerPrompt("editor", require("./Editor.js"));
+
     const savedAnswers = this.readSavedAnswers();
 
     function validateNumber(input: string): true | string {
