@@ -5,7 +5,7 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const isDev = require("electron-is-dev");
 
-const { executeStreamingLoadtest } = require("negev");
+const { executeStreamingLoadtest } = require("@negev/core");
 const { ipcMain, dialog } = require("electron");
 const fs = require("fs");
 

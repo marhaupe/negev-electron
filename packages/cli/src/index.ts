@@ -12,12 +12,13 @@ import {
   DEFAULT_CONCURRENCY_LIMIT,
   DEFAULT_DURATION,
   DEFAULT_NUMBER_REQUESTS,
-} from "negev";
+} from "@negev/core";
 import ora from "ora";
 import Table from "cli-table";
 import { from } from "rxjs";
 import * as path from "path";
 import * as fs from "fs-extra";
+import EditorPrompt from "./Editor";
 
 function parseHeader(input: string[]): Record<string, string> {
   const headers: Record<string, string> = {};
@@ -101,7 +102,7 @@ class GraphqlLoadtestCli extends Command {
   }
 
   getQuestions() {
-    inquirer.registerPrompt("editor", require("./Editor.js"));
+    inquirer.registerPrompt("editor", EditorPrompt as any);
 
     const savedAnswers = this.readSavedAnswers();
 

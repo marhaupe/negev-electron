@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { observable } from "mobx";
 import { useLocalStore } from "mobx-react";
 import { create, persist } from "mobx-persist";
-import { FetchConfig, Stats, Phase } from "negev";
+import { FetchConfig, Stats, Phase } from "@negev/core";
 
 const hydrate = create({
   storage: window.localStorage,

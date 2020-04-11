@@ -1,6 +1,6 @@
 {
-  "name": "negev-core",
-  "version": "0.0.1-alpha.4",
+  "name": "@negev/core",
+  "version": "0.0.1-alpha.1",
   "license": "MIT",
   "author": "marhaupe <marhaupe97@gmail.com>",
   "homepage": "https://github.com/marhaupe/negev",
@@ -11,6 +11,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",

@@ -1,22 +1,17 @@
-"use strict";
-/**
- * `editor` type prompt
- */
-
 var chalk = require("chalk");
 var ExternalEditor = require("external-editor").ExternalEditor;
 var Base = require("inquirer/lib/prompts/base");
 var observe = require("inquirer/lib/utils/events");
 var { Subject } = require("rxjs");
 
-class EditorPrompt extends Base {
+export default class EditorPrompt extends Base {
   /**
    * Start the Inquiry session
    * @param  {Function} cb      Callback when prompt is done
    * @return {this}
    */
 
-  _run(cb) {
+  _run(cb: any) {
     this.done = cb;
 
     this.editorResult = new Subject();
@@ -49,7 +44,7 @@ class EditorPrompt extends Base {
    * @return {EditorPrompt} self
    */
 
-  render(error) {
+  render(error?: any) {
     var bottomContent = "";
     var message = this.getQuestion();
 
@@ -76,7 +71,7 @@ class EditorPrompt extends Base {
     this.editor.runAsync(this.endExternalEditor.bind(this));
   }
 
-  endExternalEditor(error, result) {
+  endExternalEditor(error: any, result: any) {
     this.rl.resume();
     if (error) {
       this.editorResult.error(error);
@@ -85,7 +80,7 @@ class EditorPrompt extends Base {
     }
   }
 
-  onEnd(state) {
+  onEnd(state: any) {
     this.editorResult.unsubscribe();
     this.lineSubscription.unsubscribe();
     this.editor.cleanup();
@@ -97,9 +92,7 @@ class EditorPrompt extends Base {
     this.done(this.answer);
   }
 
-  onError(state) {
+  onError(state: any) {
     this.render(state.isValid);
   }
 }
-
-module.exports = EditorPrompt;

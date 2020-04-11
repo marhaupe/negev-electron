@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import GraphiQL from "graphiql";
 import fetch from "unfetch";
 import "graphiql/graphiql.css";
-import { Config } from "negev";
+import { Config } from "@negev/core";
 import { Link } from "react-router-dom";
 // import "./editor.css";
 import { useStore, AppStore } from "../mobx/store";

@@ -1,6 +1,6 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
-import { Stats } from "negev";
+import { Stats } from "@negev/core";
 import { Link } from "react-router-dom";
 import { useStore } from "../mobx/store";
 import { useObserver } from "mobx-react";

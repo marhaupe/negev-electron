@@ -1,6 +1,6 @@
 {
-  "name": "negev-electron",
-  "version": "0.1.0",
+  "name": "@negev/electron",
+  "version": "0.0.1-alpha.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
@@ -16,7 +16,7 @@
     "electron-is-dev": "^1.1.0",
     "graphiql": "0.17.5",
     "graphql": "^14.6.0",
-    "negev": "0.0.1-alpha.3",
+    "@negev/core": "0.0.1-alpha.1",
     "lodash": "^4.17.15",
     "mobx": "^5.15.4",
     "mobx-persist": "^0.4.1",
