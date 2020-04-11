@@ -9,10 +9,9 @@ jobs:
       - checkout
       - node/with-cache:
           steps:
-            - run: cd packages/core
             - run: yarn install
-            - run: yarn build
-            - run: yarn test --coverage
+            - run: cd packages/core && yarn build
+            - run: cd packages/core && yarn test --coverage
 workflows:
     build-and-test:
       jobs:
