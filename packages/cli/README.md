@@ -15,4 +15,4 @@ npm install -g @negev/cli
 
 ## Demo
 
-[![asciicast](https://asciinema.org/a/Q5eGihTD5Pfy9hEgtOcfy8AsN.svg)](https://asciinema.org/a/Q5eGihTD5Pfy9hEgtOcfy8AsN)
+![Demo](.github/demo.gif)

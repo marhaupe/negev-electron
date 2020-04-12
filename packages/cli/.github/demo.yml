@@ -1,0 +1,176 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: bash -l
+
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: /Users/haupma/Entwicklung/other/negev/packages/cli/.github
+
+  # Export additional ENV variables
+  env:
+    recording: true
+
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 134
+
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 20
+
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+
+  # Quality
+  # 1 - 100
+  quality: 70
+
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 1000
+
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: floating
+    title: negev
+    style:
+      border: 0px black solid
+      # boxShadow: none
+      # margin: 0px
+
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+
+  # The size of the font
+  fontSize: 12
+
+  # The height of lines
+  lineHeight: 1
+
+  # The spacing between letters
+  letterSpacing: 0
+
+  # Theme
+  theme:
+    background: "transparent"
+    foreground: "#afafaf"
+    cursor: "#c7c7c7"
+    black: "#232628"
+    red: "#fc4384"
+    green: "#b3e33b"
+    yellow: "#ffa727"
+    blue: "#75dff2"
+    magenta: "#ae89fe"
+    cyan: "#708387"
+    white: "#d5d5d0"
+    brightBlack: "#626566"
+    brightRed: "#ff7fac"
+    brightGreen: "#c8ed71"
+    brightYellow: "#ebdf86"
+    brightBlue: "#75dff2"
+    brightMagenta: "#ae89fe"
+    brightCyan: "#b1c6ca"
+    brightWhite: "#f9f9f4"
+
+# Records, feel free to edit them
+records:
+  - delay: 0
+    content: "n"
+  - delay: 87
+    content: e
+  - delay: 222
+    content: g
+  - delay: 64
+    content: e
+  - delay: 263
+    content: v
+  - delay: 409
+    content: "\r\n"
+  - delay: 771
+    content: "\e[32m?\e[39m \e[1mDo you want to set any headers?\e[22m\e[0m \e[0m\e[2m(y/N) \e[22m\e[40D\e[40C"
+  - delay: 1525
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mDo you want to set any headers?\e[22m\e[0m \e[0m\e[36mNo\e[39m\e[36D\e[36C\r\n\e[32m?\e[39m \e[1mWhat URL should I loadtest for you?\e[22m\e[0m \e[0m\e[2m(http://localhost:4000) \e[22m\e[62D\e[62C"
+  - delay: 1456
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mWhat URL should I loadtest for you?\e[22m\e[0m \e[0m\e[36mhttp://localhost:4000\e[39m\e[59D\e[59C\r\n\e[32m?\e[39m \e[1mWhat query should I loadtest for you?\e[22m\e[0m \e[0m\e[2mPress <enter> to launch your preferred editor.\e[22m\e[86D\e[86C"
+  - delay: 1344
+    content: "\e[?1049h\e[?1h\e=\e[?2004h\e[1;20r\e[?12h\e[?12l\e[22;2t\e[22;1t\e[27m\e[29m\e[m\e[H\e[2J\e[?25l\e[20;1H\"/var/folders/xz/_cfwxjjs2m53_qck2fdq4yx80000gn/T/tmp-92904d6KE77jEXwT8\" 6L, 50C\e[2;1H▽\e[6n\e[2;1H  \e[1;1H\e[>c\e]10;?\a\e]11;?\a\e[1;1H\e[1m /p/v/f/x/_/T/tmp-92904d6KE77jEXwT8 \e[m\e[7m                                                                                                  \e[m\e[2;1H\e[38;5;242m \e[m\e[36m# Example query:\e[m\r\n\e[38;5;242m \e[m{\r\n\e[38;5;242m \e[m  books {\r\n\e[38;5;242m \e[m    author\r\n\e[38;5;242m \e[m  }\r\n\e[38;5;242m \e[m}\r\n\e[1m\e[34m~                                                                                                                                     \e[9;1H~                                                                                                                                     \e[10;1H~                                                                                                                                     \e[11;1H~                                                                                                                                     \e[12;1H~                                                                                                                                     \e[13;1H~                                                                                                                                     \e[14;1H~                                                                                                                                     \e[15;1H~                                                                                                                                     \e[16;1H~                                                                                                                                     \e[17;1H~                                                                                                                                     \e[18;1H~                                                                                                                                     \e[m\e[19;1H\e[1m\e[7m <m53_qck2fdq4yx80000gn/T/tmp-92904d6KE77jEXwT8   CWD: /Users/haupma/Entwicklung/other/negev/packages/cli/.github   Line: 1  Column: 1\e[2;2H\e[?25h\eP+q436f\e\\\eP+q6b75\e\\\eP+q6b64\e\\\eP+q6b72\e\\\eP+q6b6c\e\\\eP+q2332\e\\\eP+q2334\e\\\eP+q2569\e\\\eP+q2a37\e\\\eP+q6b31\e\\\e[?12$p"
+  - delay: 1356
+    content: "\e[?25l\e[m\e[20;1H\e[K\e[20;1H:\e[?2004h\e[?25h"
+  - delay: 818
+    content: w
+  - delay: 84
+    content: q
+  - delay: 497
+    content: "\r\e[?25l\e[?2004l\"/private/var/folders/xz/_cfwxjjs2m53_qck2fdq4yx80000gn/T/tmp-92904d6KE77jEXwT8\" 6L, 50C written\r\e[23;2t\e[23;1t"
+  - delay: 101
+    content: "\r\r\n\e[?2004l\e[?1l\e>\e[?25h\e[?1049l"
+  - delay: 46
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mWhat query should I loadtest for you?\e[22m\e[0m \e[0m\e[2mReceived\e[22m\e[48D\e[48C\r\n\e[?25l\e[32m?\e[39m \e[1mWhich type of loadtest do you want to run?\e[22m\e[0m \e[0m\e[2m(Use arrow keys)\e[22m\r\n\e[36m❯ I want to run the loadtest for a specified duration.\e[39m \r\n  I want to set a fixed number of requests. \e[44D\e[44C"
+  - delay: 893
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[G\e[32m?\e[39m \e[1mWhich type of loadtest do you want to run?\e[22m\e[0m \e[0m\r\n  I want to run the loadtest for a specified duration. \r\n\e[36m❯ I want to set a fixed number of requests.\e[39m \e[44D\e[44C"
+  - delay: 758
+    content: "\e[2K\e[1A\e[2K\e[1A\e[2K\e[G\e[32m?\e[39m \e[1mWhich type of loadtest do you want to run?\e[22m\e[0m \e[0m\e[36mI want to set a fixed number of requests.\e[39m\e[86D\e[86C\r\n\e[?25h\e[32m?\e[39m \e[1mHow many requests do you want to send?\e[22m\e[0m \e[0m\e[2m(500) \e[22m\e[47D\e[47C"
+  - delay: 2560
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mHow many requests do you want to send?\e[22m\e[0m \e[0m\e[36m500\e[39m\e[44D\e[44C\r\n\e[32m?\e[39m \e[1mDo you want to limit the number of requests sent per second?\e[22m\e[0m \e[0m\e[2m(y/N) \e[22m\e[69D\e[69C"
+  - delay: 1657
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mDo you want to limit the number of requests sent per second?\e[22m\e[0m \e[0m\e[36mNo\e[39m\e[65D\e[65C\r\n\e[32m?\e[39m \e[1mHow many workers should concurrently send requests?\e[22m\e[0m \e[0m\e[2m(50) \e[22m\e[59D\e[59C"
+  - delay: 1782
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mHow many workers should concurrently send requests?\e[22m\e[0m \e[0m\e[36m50\e[39m\e[56D\e[56C\r\n\e[?25l\e[36m⠋\e[39m Running loadtest..."
+  - delay: 81
+    content: "\e[2K\e[1G\e[36m⠙\e[39m Running loadtest..."
+  - delay: 80
+    content: "\e[2K\e[1G\e[36m⠹\e[39m Running loadtest..."
+  - delay: 80
+    content: "\e[2K\e[1G\e[36m⠸\e[39m Running loadtest..."
+  - delay: 80
+    content: "\e[2K\e[1G\e[36m⠼\e[39m Running loadtest..."
+  - delay: 57
+    content: "\e[2K\e[1G\e[?25h\e[32m✔\e[39m Running loadtest...\r\n\r\nSummary:\r\n Total requests:    \e[90m \e[39m 500      \r\n Loadtest duration: \e[90m \e[39m 368 ms   \r\n Slowest:           \e[90m \e[39m 49 ms    \r\n Fastest:           \e[90m \e[39m 21 ms    \r\n Average:           \e[90m \e[39m 34.88 ms \r\n Requests/sec:      \e[90m \e[39m 1358.7   \r\n\r\nHistogram:\r\n  21ms: 8\r\n  24ms: 15\r\n  27ms: 44\r\n  30ms: 59\r\n  33ms: 45\r\n  36ms: 164\r\n  39ms: 133\r\n  42ms: 20\r\n  45ms: 6\r\n  48ms: 6\r\n  51ms: 0\r\n\r\nLatency Distribution:\r\n  10% in 22 ms\r\n  25% in 31 ms\r\n  50% in 26 ms\r\n  75% in 38 ms\r\n  90% in 40 ms\r\n  95% in 41 ms\r\n  99% in 47 ms\r\n\r\nError distribution:\r\n Successes \e[90m \e[39m 500 \r\n Errors    \e[90m \e[39m 0   \r\n\r\n\e[32m?\e[39m \e[1mDo you want me to print the config I used? This can be useful for scripting.\e[22m\e[0m \e[0m\e[2m(Y/n) \e[22m\e[85D\e[85C"
+  - delay: 700
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mDo you want me to print the config I used? This can be useful for scripting.\e[22m\e[0m \e[0m\e[2m(Y/n) \e[22m\e[85D\e[85C"
+  - delay: 308
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mDo you want me to print the config I used? This can be useful for scripting.\e[22m\e[0m \e[0m\e[2m(Y/n) \e[22m\e[85D\e[85C"
+  - delay: 2466
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mDo you want me to print the config I used? This can be useful for scripting.\e[22m\e[0m \e[0m\e[2m(Y/n) \e[22mn\e[86D\e[86C"
+  - delay: 309
+    content: "\e[2K\e[G\e[32m?\e[39m \e[1mDo you want me to print the config I used? This can be useful for scripting.\e[22m\e[0m \e[0m\e[36mNo\e[39m\e[81D\e[81C\r\n"
+  - delay: 6
+    content: "\e[?25h"
+  - delay: 563
+    content: "logout\r\n"
