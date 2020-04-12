@@ -32,9 +32,12 @@ function parseHeader(input: string[]): Record<string, string> {
 }
 
 class GraphqlLoadtestCli extends Command {
-  static description = "Run loadtests against your GraphQL backend.";
+  static description = "Benchmark your GraphQL servers with ease.";
 
-  static usage = "negev-cli [...options]";
+  static examples = [
+    "$ negev    # Will run the command in prompt-mode",
+    '$ negev -e="http://localhost:4000" -q="{ books { author } }"   # Will immediately start a loadtest with the given configuration',
+  ];
 
   static flags = {
     version: flags.version({ char: "v" }),
@@ -411,7 +414,7 @@ class GraphqlLoadtestCli extends Command {
     duration,
     numberRequests,
   }: any) {
-    this.log("negev-cli \\");
+    this.log("negev\\");
     if (headers) {
       for (const [key, value] of Object.entries(headers)) {
         this.log(`  -H="${key}: ${value}" \\`);
