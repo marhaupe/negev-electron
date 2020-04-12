@@ -1,7 +1,7 @@
 {
   "name": "@negev/cli",
   "description": "Run loadtests against your GraphQL backend",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "author": "Marcel Haupenthal @marhaupe",
   "bin": {
     "negev": "./bin/run"
