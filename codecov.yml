@@ -1,0 +1,13 @@
+coverage:
+  status:
+    project:
+      target: 90%
+      threshold: 5%
+    core:
+      flags: 
+        - core
+      target: 90%
+flags:
+  core:  
+    paths:
+      - packages/core

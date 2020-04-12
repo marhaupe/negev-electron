@@ -3,4 +3,6 @@ node_js:
   - 10
   - 12
 script:
-  - cd packages/core && yarn build && yarn test
+  - cd packages/core && yarn build && yarn test --coverage
+after_success:
+  - bash <(curl https://codecov.io/bash) -s packages/core/coverage -F core
