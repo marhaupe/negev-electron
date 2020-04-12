@@ -5,4 +5,4 @@ node_js:
 script:
   - cd packages/core && yarn build && yarn test --coverage
 after_success:
-  - bash <(curl https://codecov.io/bash) -s packages/core/coverage -F core
+  - npx codecov --gcov-root packages/core/coverage -F core
