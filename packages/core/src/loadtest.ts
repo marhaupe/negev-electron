@@ -77,7 +77,9 @@ async function executeDurationLoadtest(
     );
   }
 
-  return await Promise.all(workerPromises).then((nestedPromises) => nestedPromises.flat(1));
+  return await Promise.all(workerPromises).then((nestedPromises) =>
+    nestedPromises.reduce((acc, curr) => acc.concat(curr))
+  );
 }
 
 async function executeNumberRequestsLoadtest(
@@ -99,5 +101,7 @@ async function executeNumberRequestsLoadtest(
     );
   }
 
-  return await Promise.all(workerPromises).then((nestedPromises) => nestedPromises.flat(1));
+  return await Promise.all(workerPromises).then((nestedPromises) =>
+    nestedPromises.reduce((acc, curr) => acc.concat(curr))
+  );
 }
