@@ -19,7 +19,7 @@ $ npm install -g @negev/cli
 $ @negev/cli COMMAND
 running command...
 $ @negev/cli (-v|--version|version)
-@negev/cli/0.0.1-alpha.1 darwin-x64 node-v12.16.1
+@negev/cli/0.0.1-alpha.2 darwin-x64 node-v12.16.1
 $ @negev/cli --help [COMMAND]
 USAGE
   $ @negev/cli COMMAND
