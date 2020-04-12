@@ -118,10 +118,10 @@ function getPercentile(percentile: number, array: number[]): number {
   const index = (percentile / 100) * (array.length - 1);
   const flooredIndex = Math.floor(index);
   if (Math.floor(index) == index) {
-    return array[index];
+    return roundDecimalPlaces(array[index], 2);
   }
   const fraction = index - flooredIndex;
-  return array[flooredIndex] + (array[flooredIndex + 1] - array[flooredIndex]) * fraction;
+  return roundDecimalPlaces(array[flooredIndex] + (array[flooredIndex + 1] - array[flooredIndex]) * fraction, 2);
 }
 
 export function calculateErrorDistribution(responses: QueryResult[], errors: Error[]): ErrorDistribution {
