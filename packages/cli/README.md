@@ -1,32 +1,18 @@
-negev-cli
-====================
+# @negev/cli
 
-Run loadtests against your GraphQL backend
+[![npm version](https://img.shields.io/npm/v/@negev/cli)](https://img.shields.io/npm/v/@negev/cli)
+[![Build Status](https://travis-ci.com/marhaupe/graphql-loadtest.svg?branch=master)](https://travis-ci.com/marhaupe/graphql-loadtest)
 
-[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/negev-cli.svg)](https://npmjs.org/package/negev-cli)
-[![Downloads/week](https://img.shields.io/npm/dw/negev-cli.svg)](https://npmjs.org/package/negev-cli)
-[![License](https://img.shields.io/npm/l/negev-cli.svg)](https://github.com/marhaupe/negev/blob/master/package.json)
+<!-- [![codecov](https://codecov.io/gh/marhaupe/negev/branch/master/graph/badge.svg?flag=core)](https://codecov.io/gh/marhaupe/negev) -->
 
-<!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
-<!-- tocstop -->
-# Usage
-<!-- usage -->
-```sh-session
-$ npm install -g @negev/cli
-$ @negev/cli COMMAND
-running command...
-$ @negev/cli (-v|--version|version)
-@negev/cli/0.0.1-alpha.2 darwin-x64 node-v12.16.1
-$ @negev/cli --help [COMMAND]
-USAGE
-  $ @negev/cli COMMAND
-...
+> Benchmark your GraphQL servers with ease.
+
+## Installation
+
+```bash
+npm install -g @negev/cli
 ```
-<!-- usagestop -->
-# Commands
-<!-- commands -->
 
-<!-- commandsstop -->
+## Demo
+
+[![asciicast](https://asciinema.org/a/Q5eGihTD5Pfy9hEgtOcfy8AsN.svg)](https://asciinema.org/a/Q5eGihTD5Pfy9hEgtOcfy8AsN)

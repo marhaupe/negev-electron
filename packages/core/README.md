@@ -1,6 +1,6 @@
 # @negev/core
 
-[![npm version](https://badge.fury.io/js/%40negev%2Fcore.svg)](https://badge.fury.io/js/%40negev%2Fcore)
+[![npm version](https://img.shields.io/npm/v/@negev/core)](https://img.shields.io/npm/v/@negev/core)
 [![Build Status](https://travis-ci.com/marhaupe/graphql-loadtest.svg?branch=master)](https://travis-ci.com/marhaupe/graphql-loadtest)
 [![codecov](https://codecov.io/gh/marhaupe/negev/branch/master/graph/badge.svg?flag=core)](https://codecov.io/gh/marhaupe/negev)
 
